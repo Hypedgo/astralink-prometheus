@@ -154,7 +154,7 @@ export default function LandingPage() {
                         playsInline
                         muted={false}
                     >
-                        <source src="/My movie 15.mov" type="video/mp4" />
+                        <source src="/intro-video.mov" type="video/quicktime" />
                     </video>
 
                     <button
