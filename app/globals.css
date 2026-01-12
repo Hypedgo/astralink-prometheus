@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  /* Mission Readiness Card */
+  .readiness-card {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border: 3px solid;
+    border-radius: 24px;
+    padding: 2rem;
+    color: white;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .readiness-card.loading,
+  .readiness-card.error {
+    border-color: #6b7280;
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .score-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .score-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .score-inner {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #0f172a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-number {
+    font-size: 4rem;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 1.25rem;
+    opacity: 0.7;
+  }
+
+  .tier-badge {
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .recommendation {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+  }
+
+  .recommendation h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .next-pass {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .next-pass .label {
+    opacity: 0.7;
+  }
+
+  .next-pass .value {
+    font-weight: 600;
+  }
+
+  .factors {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .factor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+  }
+
+  .factor-icon {
+    font-size: 2rem;
+  }
+
+  .factor-label {
+    font-size: 0.875rem;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+  }
+
+  .factor-value {
+    font-weight: 600;
+  }
+
+  .refresh-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .refresh-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgb(59, 130, 246);
+  }
+
+  .spinner {
+    font-size: 1.25rem;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+}
