@@ -4,14 +4,10 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Sphere, Stars } from '@react-three/drei'
 import { useLoader } from '@react-three/fiber'
 import * as THREE from 'three'
-import MissionBrief from '../MissionBrief'
 import LocationSearch from '../LocationSearch'
 import LocationMarker from '../LocationMarker'
-import SystemStatus from '../SystemStatus'
-import MissionReadinessCard from '../MissionReadinessCard'
 import { useRef, useState, useEffect } from 'react'
-import AstraLinkCopilot from '../AstraLinkCopilot'
-import Link from 'next/link';
+import Link from 'next/link'
 
 function Earth() {
   const earthTexture = useLoader(
@@ -228,8 +224,7 @@ export default function Home() {
   })
 
   useEffect(() => {
-    // 5 second loading screen to ensure EVERYTHING loads
-    const timer = setTimeout(() => setLoading(false), 5000)
+    const timer = setTimeout(() => setLoading(false), 2000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -302,18 +297,35 @@ export default function Home() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000000' }}>
-      <MissionBrief location={location} />
-      <SystemStatus />
-      <MissionReadinessCard latitude={location.latitude} longitude={location.longitude} />
-      <LocationSearch onLocationSelect={handleLocationSelect} />
-      <AstraLinkCopilot
-        latitude={location.latitude}
-        longitude={location.longitude}
-        locationName={location.displayName}
-      />
+      {/* Location Display */}
+      <div style={{
+        position: 'fixed',
+        top: '30px',
+        left: '30px',
+        zIndex: 1000,
+        background: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(34, 211, 238, 0.3)',
+        borderRadius: '8px',
+        padding: '20px',
+        maxWidth: '300px'
+      }}>
+        <div style={{ fontSize: '12px', color: '#22d3ee', marginBottom: '8px', letterSpacing: '2px' }}>
+          MISSION LOCATION
+        </div>
+        <div style={{ fontSize: '16px', color: '#ffffff', fontWeight: '600' }}>
+          {location.displayName}
+        </div>
+        <div style={{ fontSize: '11px', color: '#888', marginTop: '8px' }}>
+          {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°
+        </div>
+      </div>
 
+      <LocationSearch onLocationSelect={handleLocationSelect} />
+
+      {/* Navigation Links */}
       <Link
-        href="/planning"
+        href="/sky-view"
         style={{
           position: 'fixed',
           top: '30px',
@@ -341,15 +353,15 @@ export default function Home() {
           e.currentTarget.style.transform = 'translateY(0)';
         }}
       >
-        MISSION PLANNING
+        SKY VIEW
       </Link>
 
       <Link
-        href="/satellites"
+        href="/"
         style={{
           position: 'fixed',
           top: '30px',
-          right: '240px',
+          right: '180px',
           zIndex: 1000,
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
@@ -373,7 +385,7 @@ export default function Home() {
           e.currentTarget.style.transform = 'translateY(0)';
         }}
       >
-        SATELLITES
+        HOME
       </Link>
 
       <Canvas camera={{ position: [0, 1, 6], fov: 45 }}>
