@@ -24,7 +24,18 @@ export default function LandingPage() {
     const handleEnter = () => {
         setStage('video');
         setTimeout(() => {
-            videoRef.current?.play();
+            if (videoRef.current) {
+                // Try to play with audio - browser allows after user click
+                videoRef.current.muted = false;
+                videoRef.current.play().catch((error) => {
+                    console.log('Autoplay with audio failed, trying muted:', error);
+                    // Fallback: play muted if audio fails
+                    if (videoRef.current) {
+                        videoRef.current.muted = true;
+                        videoRef.current.play();
+                    }
+                });
+            }
         }, 100);
     };
 
