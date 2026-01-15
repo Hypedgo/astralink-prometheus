@@ -9,6 +9,278 @@ import LocationMarker from '../LocationMarker'
 import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 
+// Space Weather Component
+function SpaceWeather() {
+  const [weather, setWeather] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch('https://services.swpc.noaa.gov/products/noaa-scales.json')
+        const data = await response.json()
+        setWeather(data)
+      } catch (error) {
+        console.error('Error fetching space weather:', error)
+      }
+    }
+    fetchWeather()
+    const interval = setInterval(fetchWeather, 300000) // 5 minutes
+    return () => clearInterval(interval)
+  }, [])
+
+  if (!weather) return null
+
+  const currentConditions = weather[0] || {}
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '30px',
+      left: '30px',
+      zIndex: 1000,
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(34, 211, 238, 0.3)',
+      borderRadius: '8px',
+      padding: '20px',
+      maxWidth: '300px'
+    }}>
+      <div style={{ fontSize: '12px', color: '#22d3ee', marginBottom: '12px', letterSpacing: '2px' }}>
+        SPACE WEATHER
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Solar Radiation</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            S{currentConditions['S']?.Scale || 0}
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Radio Blackout</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            R{currentConditions['R']?.Scale || 0}
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Geomagnetic Storm</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            G{currentConditions['G']?.Scale || 0}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Earth Weather Component
+function EarthWeather({ latitude, longitude }: { latitude: number; longitude: number }) {
+  const [weather, setWeather] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,cloud_cover`
+        )
+        const data = await response.json()
+        setWeather(data.current)
+      } catch (error) {
+        console.error('Error fetching weather:', error)
+      }
+    }
+    fetchWeather()
+  }, [latitude, longitude])
+
+  if (!weather) return null
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '30px',
+      left: '360px',
+      zIndex: 1000,
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(34, 211, 238, 0.3)',
+      borderRadius: '8px',
+      padding: '20px',
+      maxWidth: '300px'
+    }}>
+      <div style={{ fontSize: '12px', color: '#22d3ee', marginBottom: '12px', letterSpacing: '2px' }}>
+        EARTH WEATHER
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Temperature</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            {weather.temperature_2m}°C
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Humidity</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            {weather.relative_humidity_2m}%
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Wind Speed</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            {weather.wind_speed_10m} km/h
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', color: '#888' }}>Cloud Cover</span>
+          <span style={{ fontSize: '11px', color: '#fff', fontWeight: '600' }}>
+            {weather.cloud_cover}%
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Mission Readiness Component
+function MissionReadiness({ latitude, longitude }: { latitude: number; longitude: number }) {
+  const [readiness, setReadiness] = useState<number>(0)
+
+  useEffect(() => {
+    const calculateReadiness = async () => {
+      try {
+        // Fetch weather
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,cloud_cover,wind_speed_10m`
+        )
+        const weather = await weatherRes.json()
+
+        // Calculate score based on conditions
+        let score = 100
+
+        // Cloud cover penalty
+        const clouds = weather.current.cloud_cover
+        if (clouds > 50) score -= (clouds - 50) * 0.5
+
+        // Wind speed penalty
+        const wind = weather.current.wind_speed_10m
+        if (wind > 20) score -= (wind - 20) * 2
+
+        // Time of day bonus (prefer night for observations)
+        const hour = new Date().getHours()
+        if (hour >= 20 || hour <= 6) score += 10
+
+        setReadiness(Math.max(0, Math.min(100, Math.round(score))))
+      } catch (error) {
+        console.error('Error calculating readiness:', error)
+        setReadiness(50)
+      }
+    }
+
+    calculateReadiness()
+    const interval = setInterval(calculateReadiness, 60000) // 1 minute
+    return () => clearInterval(interval)
+  }, [latitude, longitude])
+
+  const getColor = () => {
+    if (readiness >= 80) return '#22c55e'
+    if (readiness >= 50) return '#eab308'
+    return '#ef4444'
+  }
+
+  const getStatus = () => {
+    if (readiness >= 80) return 'OPTIMAL'
+    if (readiness >= 50) return 'ACCEPTABLE'
+    return 'SUBOPTIMAL'
+  }
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '30px',
+      right: '30px',
+      zIndex: 1000,
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(10px)',
+      border: `1px solid ${getColor()}`,
+      borderRadius: '8px',
+      padding: '20px',
+      minWidth: '200px'
+    }}>
+      <div style={{ fontSize: '12px', color: '#22d3ee', marginBottom: '12px', letterSpacing: '2px' }}>
+        MISSION READINESS
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div style={{
+          fontSize: '36px',
+          color: getColor(),
+          fontWeight: '800'
+        }}>
+          {readiness}
+        </div>
+        <div>
+          <div style={{ fontSize: '14px', color: getColor(), fontWeight: '600' }}>
+            {getStatus()}
+          </div>
+          <div style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>
+            Observation Conditions
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// System Status Component
+function SystemStatus() {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '120px',
+      left: '30px',
+      zIndex: 1000,
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(34, 211, 238, 0.3)',
+      borderRadius: '8px',
+      padding: '15px 20px'
+    }}>
+      <div style={{ fontSize: '10px', color: '#22d3ee', marginBottom: '10px', letterSpacing: '2px' }}>
+        SYSTEM STATUS
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: '#22c55e',
+            boxShadow: '0 0 8px #22c55e'
+          }} />
+          <span style={{ fontSize: '11px', color: '#fff' }}>Space Weather (NOAA)</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: '#22c55e',
+            boxShadow: '0 0 8px #22c55e'
+          }} />
+          <span style={{ fontSize: '11px', color: '#fff' }}>Earth Weather (Open-Meteo)</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: '#22c55e',
+            boxShadow: '0 0 8px #22c55e'
+          }} />
+          <span style={{ fontSize: '11px', color: '#fff' }}>ISS Tracking (Live)</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Earth() {
   const earthTexture = useLoader(
     THREE.TextureLoader,
@@ -321,6 +593,10 @@ export default function Home() {
         </div>
       </div>
 
+      <SystemStatus />
+      <SpaceWeather />
+      <EarthWeather latitude={location.latitude} longitude={location.longitude} />
+      <MissionReadiness latitude={location.latitude} longitude={location.longitude} />
       <LocationSearch onLocationSelect={handleLocationSelect} />
 
       {/* Navigation Links */}
