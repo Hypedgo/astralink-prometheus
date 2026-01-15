@@ -163,7 +163,6 @@ export default function LandingPage() {
                             objectFit: 'cover'
                         }}
                         playsInline
-                        muted={false}
                     >
                         <source src="/intro-video.mov" type="video/quicktime" />
                     </video>
@@ -252,7 +251,7 @@ export default function LandingPage() {
                                         >
                                             Mission Control
                                         </Link>
-                                        <Link href="/planning" style={{
+                                        <Link href="/sky-view" style={{
                                             color: 'rgba(255, 255, 255, 0.7)',
                                             textDecoration: 'none',
                                             fontSize: '13px',
@@ -264,21 +263,7 @@ export default function LandingPage() {
                                             onMouseEnter={(e) => e.currentTarget.style.color = '#00ff88'}
                                             onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'}
                                         >
-                                            Planning
-                                        </Link>
-                                        <Link href="/satellites" style={{
-                                            color: 'rgba(255, 255, 255, 0.7)',
-                                            textDecoration: 'none',
-                                            fontSize: '13px',
-                                            fontWeight: '600',
-                                            letterSpacing: '1px',
-                                            textTransform: 'uppercase',
-                                            transition: 'color 0.3s'
-                                        }}
-                                            onMouseEnter={(e) => e.currentTarget.style.color = '#00ff88'}
-                                            onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'}
-                                        >
-                                            Satellites
+                                            Sky View
                                         </Link>
                                     </nav>
                                 </div>
@@ -479,7 +464,7 @@ export default function LandingPage() {
                                                 lineHeight: '1.7',
                                                 margin: 0
                                             }}>
-                                                Real-time 3D orbital tracking, voice-activated copilot, and live telemetry dashboard
+                                                Real-time 3D orbital tracking, space weather monitoring, and live telemetry dashboard with mission readiness scoring
                                             </p>
                                         </div>
                                     </Link>
@@ -487,7 +472,7 @@ export default function LandingPage() {
 
                                 {/* Feature 2 */}
                                 <div className="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-                                    <Link href="/planning" style={{ textDecoration: 'none' }}>
+                                    <Link href="/sky-view" style={{ textDecoration: 'none' }}>
                                         <div style={{
                                             background: 'rgba(255, 255, 255, 0.02)',
                                             border: '1px solid rgba(0, 255, 136, 0.1)',
@@ -508,14 +493,14 @@ export default function LandingPage() {
                                                 e.currentTarget.style.transform = 'translateY(0)';
                                             }}
                                         >
-                                            <div style={{ fontSize: '48px', marginBottom: '20px' }}>📊</div>
+                                            <div style={{ fontSize: '48px', marginBottom: '20px' }}>🌌</div>
                                             <h3 style={{
                                                 fontSize: '24px',
                                                 fontWeight: '700',
                                                 color: '#00ff88',
                                                 marginBottom: '15px'
                                             }}>
-                                                Mission Planning
+                                                Sky View
                                             </h3>
                                             <p style={{
                                                 fontSize: '15px',
@@ -523,7 +508,7 @@ export default function LandingPage() {
                                                 lineHeight: '1.7',
                                                 margin: 0
                                             }}>
-                                                72-hour forecast analysis, readiness scoring, and optimal observation window detection
+                                                Live ISS tracking, 27-star catalog, constellation lines, meteor showers, aurora effects, and telescopic zoom mode
                                             </p>
                                         </div>
                                     </Link>
@@ -531,46 +516,33 @@ export default function LandingPage() {
 
                                 {/* Feature 3 */}
                                 <div className="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-                                    <Link href="/satellites" style={{ textDecoration: 'none' }}>
-                                        <div style={{
-                                            background: 'rgba(255, 255, 255, 0.02)',
-                                            border: '1px solid rgba(0, 255, 136, 0.1)',
-                                            borderRadius: '16px',
-                                            padding: '40px',
-                                            height: '100%',
-                                            transition: 'all 0.3s',
-                                            cursor: 'pointer'
-                                        }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = 'rgba(0, 255, 136, 0.05)';
-                                                e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.3)';
-                                                e.currentTarget.style.transform = 'translateY(-8px)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                                                e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.1)';
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                            }}
-                                        >
-                                            <div style={{ fontSize: '48px', marginBottom: '20px' }}>🛰️</div>
-                                            <h3 style={{
-                                                fontSize: '24px',
-                                                fontWeight: '700',
-                                                color: '#00ff88',
-                                                marginBottom: '15px'
-                                            }}>
-                                                Satellite Operations
-                                            </h3>
-                                            <p style={{
-                                                fontSize: '15px',
-                                                color: 'rgba(255, 255, 255, 0.6)',
-                                                lineHeight: '1.7',
-                                                margin: 0
-                                            }}>
-                                                Multi-asset tracking, pass timelines, elevation profiles, and visibility intelligence
-                                            </p>
-                                        </div>
-                                    </Link>
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.02)',
+                                        border: '1px solid rgba(0, 255, 136, 0.1)',
+                                        borderRadius: '16px',
+                                        padding: '40px',
+                                        height: '100%',
+                                        transition: 'all 0.3s',
+                                        opacity: 0.5
+                                    }}>
+                                        <div style={{ fontSize: '48px', marginBottom: '20px' }}>🛰️</div>
+                                        <h3 style={{
+                                            fontSize: '24px',
+                                            fontWeight: '700',
+                                            color: '#00ff88',
+                                            marginBottom: '15px'
+                                        }}>
+                                            Coming Soon
+                                        </h3>
+                                        <p style={{
+                                            fontSize: '15px',
+                                            color: 'rgba(255, 255, 255, 0.6)',
+                                            lineHeight: '1.7',
+                                            margin: 0
+                                        }}>
+                                            Advanced satellite operations, pass predictions, and mission planning tools
+                                        </p>
+                                    </div>
                                 </div>
 
                             </div>
@@ -636,7 +608,7 @@ export default function LandingPage() {
                                             color: '#00ff88',
                                             marginBottom: '10px'
                                         }}>
-                                            72hr
+                                            27
                                         </div>
                                         <div style={{
                                             fontSize: '14px',
@@ -644,7 +616,7 @@ export default function LandingPage() {
                                             letterSpacing: '2px',
                                             textTransform: 'uppercase'
                                         }}>
-                                            Forecast Window
+                                            Star Catalog
                                         </div>
                                     </div>
                                 </div>
@@ -657,7 +629,7 @@ export default function LandingPage() {
                                             color: '#00ff88',
                                             marginBottom: '10px'
                                         }}>
-                                            AI
+                                            LIVE
                                         </div>
                                         <div style={{
                                             fontSize: '14px',
@@ -665,7 +637,7 @@ export default function LandingPage() {
                                             letterSpacing: '2px',
                                             textTransform: 'uppercase'
                                         }}>
-                                            Voice Copilot
+                                            Space Weather
                                         </div>
                                     </div>
                                 </div>
