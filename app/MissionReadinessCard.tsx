@@ -32,7 +32,7 @@ export default function MissionReadinessCard({ latitude, longitude }: MissionRea
     const fetchReadiness = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8000/api/mission-readiness?lat=${latitude}&lon=${longitude}`
+                `https://astralink-prometheus-production.up.railway.app/api/mission-readiness?lat=${latitude}&lon=${longitude}`
             );
             const result = await response.json();
             setData(result);

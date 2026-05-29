@@ -68,7 +68,7 @@ export default function SatelliteOperations() {
         for (const satId of selectedSatellites) {
             try {
                 const response = await fetch(
-                    `http://localhost:8000/api/satellites/passes?lat=${location.lat}&lon=${location.lon}&satellite_id=${satId}&days=3`
+                    `https://astralink-prometheus-production.up.railway.app/api/satellites/passes?lat=${location.lat}&lon=${location.lon}&satellite_id=${satId}&days=3`
                 );
                 const data = await response.json();
 
@@ -97,7 +97,7 @@ export default function SatelliteOperations() {
 
         try {
             const response = await fetch(
-                `http://localhost:8000/api/geocode?location=${encodeURIComponent(query)}`
+                `https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(query)}`
             );
             const data = await response.json();
 

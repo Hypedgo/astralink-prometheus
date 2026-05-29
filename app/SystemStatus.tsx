@@ -17,11 +17,11 @@ export default function SystemStatus() {
     useEffect(() => {
         async function checkHealth() {
             try {
-                const response = await fetch('http://localhost:8000/api/health')
+                const response = await fetch('https://astralink-prometheus-production.up.railway.app/api/health')
                 const data = await response.json()
 
                 // Also fetch the healthcheck endpoint
-                const healthResponse = await fetch('http://localhost:8000/api/healthcheck')
+                const healthResponse = await fetch('https://astralink-prometheus-production.up.railway.app/api/healthcheck')
                 const healthData = await healthResponse.json()
 
                 setHealth(healthData)

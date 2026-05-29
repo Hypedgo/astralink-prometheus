@@ -132,7 +132,7 @@ export default function MissionPlanning() {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:8000/api/forecast/detailed?lat=${location.lat}&lon=${location.lon}`
+                `https://astralink-prometheus-production.up.railway.app/api/forecast/detailed?lat=${location.lat}&lon=${location.lon}`
             );
             const data = await response.json();
             setForecast(data);
@@ -152,7 +152,7 @@ export default function MissionPlanning() {
 
         try {
             const response = await fetch(
-                `http://localhost:8000/api/geocode?location=${encodeURIComponent(query)}`
+                `https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(query)}`
             );
             const data = await response.json();
 

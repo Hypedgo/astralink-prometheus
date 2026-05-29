@@ -158,7 +158,7 @@ export default function AstraLinkCopilot({ latitude, longitude, locationName }: 
         setIsProcessing(true);
 
         try {
-            const response = await fetch('http://localhost:8000/api/copilot/chat', {
+            const response = await fetch('https://astralink-prometheus-production.up.railway.app/api/copilot/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
