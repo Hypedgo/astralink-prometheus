@@ -20,7 +20,7 @@ export function useBriefGenerator() {
         setError(null)
 
         try {
-            const url = `http://localhost:8000/api/generate-brief?lat=${latitude}&lon=${longitude}&location_name=${encodeURIComponent(locationName)}`
+            const url = `https://astralink-prometheus-production.up.railway.app/api/generate-brief?lat=${latitude}&lon=${longitude}&location_name=${encodeURIComponent(locationName)}`
 
             const response = await fetch(url)
             const data: BriefData = await response.json()

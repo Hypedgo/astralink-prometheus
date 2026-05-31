@@ -23,7 +23,7 @@ export function useSpaceWeather() {
         async function fetchSpaceWeather() {
             try {
                 // Call YOUR MCP server instead of NOAA directly
-                const response = await fetch('http://localhost:8000/api/space-weather')
+                const response = await fetch('https://astralink-prometheus-production.up.railway.app/api/space-weather')
                 const result = await response.json()
 
                 setData({

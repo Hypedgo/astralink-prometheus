@@ -21,7 +21,7 @@ export function useWeather(latitude: number, longitude: number) {
         async function fetchWeather() {
             try {
                 // Call YOUR MCP server with the provided coordinates
-                const url = `http://localhost:8000/api/earth-weather?lat=${latitude}&lon=${longitude}`
+                const url = `https://astralink-prometheus-production.up.railway.app/api/earth-weather?lat=${latitude}&lon=${longitude}`
 
                 const response = await fetch(url)
                 const weatherData = await response.json()

@@ -25,7 +25,7 @@ export function useISSPasses(latitude: number, longitude: number) {
     useEffect(() => {
         async function fetchPasses() {
             try {
-                const url = `http://localhost:8000/api/iss-passes?lat=${latitude}&lon=${longitude}&days=3`
+                const url = `https://astralink-prometheus-production.up.railway.app/api/iss-passes?lat=${latitude}&lon=${longitude}&days=3`
 
                 const response = await fetch(url)
                 const result = await response.json()
