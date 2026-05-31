@@ -32,7 +32,7 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
 
         try {
             const response = await fetch(
-                `http://localhost:8000/api/geocode?location=${encodeURIComponent(cityInput)}`
+                `https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(cityInput)}`
             )
             const data = await response.json()
 
