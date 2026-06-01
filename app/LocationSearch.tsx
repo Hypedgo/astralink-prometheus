@@ -53,7 +53,7 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
     return (
         <div style={{
             position: 'fixed',
-            top: '30px',
+            top: '80px',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 1000,
