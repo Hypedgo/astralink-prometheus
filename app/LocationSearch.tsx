@@ -21,34 +21,14 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
 
     const handleCitySearch = async (e: React.FormEvent) => {
         e.preventDefault()
-
-        if (!cityInput.trim()) {
-            setError('Please enter a location')
-            return
-        }
-
+        if (!cityInput.trim()) { setError('Please enter a location'); return }
         setIsSearching(true)
         setError('')
-
         try {
-            const response = await fetch(
-                `https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(cityInput)}`
-            )
+            const response = await fetch(`https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(cityInput)}`)
             const data = await response.json()
-
-            if (data.error) {
-                setError(`Location not found: ${cityInput}`)
-                setIsSearching(false)
-                return
-            }
-
-            onLocationSelect({
-                name: cityInput,
-                latitude: data.latitude,
-                longitude: data.longitude,
-                displayName: data.display_name
-            })
-
+            if (data.error) { setError(`Location not found: ${cityInput}`); setIsSearching(false); return }
+            onLocationSelect({ name: cityInput, latitude: data.latitude, longitude: data.longitude, displayName: data.display_name })
             setIsSearching(false)
             setCityInput('')
         } catch (err) {
@@ -59,57 +39,63 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
 
     const handleCoordSearch = async (e: React.FormEvent) => {
         e.preventDefault()
-
         const lat = parseFloat(latInput)
         const lon = parseFloat(lonInput)
-
-        if (isNaN(lat) || isNaN(lon)) {
-            setError('Please enter valid numbers')
-            return
-        }
-
-        if (lat < -90 || lat > 90) {
-            setError('Latitude must be between -90 and 90')
-            return
-        }
-
-        if (lon < -180 || lon > 180) {
-            setError('Longitude must be between -180 and 180')
-            return
-        }
-
+        if (isNaN(lat) || isNaN(lon)) { setError('Please enter valid numbers'); return }
+        if (lat < -90 || lat > 90) { setError('Latitude must be between -90 and 90'); return }
+        if (lon < -180 || lon > 180) { setError('Longitude must be between -180 and 180'); return }
         setError('')
-
-        onLocationSelect({
-            name: `Custom (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`,
-            latitude: lat,
-            longitude: lon,
-            displayName: `Coordinates: ${lat.toFixed(4)}°, ${lon.toFixed(4)}°`
-        })
-
+        onLocationSelect({ name: `Custom (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`, latitude: lat, longitude: lon, displayName: `Coordinates: ${lat.toFixed(4)}°, ${lon.toFixed(4)}°` })
         setLatInput('')
         setLonInput('')
     }
 
     return (
-        <div className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20 pointer-events-auto">
+        <div style={{
+            position: 'fixed',
+            top: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            pointerEvents: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px'
+        }}>
             {/* Mode Toggle */}
-            <div className="flex gap-2 mb-2 justify-center">
+            <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                     onClick={() => setSearchMode('city')}
-                    className={`px-4 py-1 rounded-lg text-sm font-bold transition-all ${searchMode === 'city'
-                            ? 'bg-cyan-500/30 text-cyan-400 border border-cyan-400'
-                            : 'bg-black/50 text-gray-400 border border-gray-600 hover:border-gray-400'
-                        }`}
+                    style={{
+                        padding: '6px 16px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        border: searchMode === 'city' ? '1px solid #22d3ee' : '1px solid rgba(100,100,100,0.5)',
+                        background: searchMode === 'city' ? 'rgba(34,211,238,0.15)' : 'rgba(0,0,0,0.5)',
+                        color: searchMode === 'city' ? '#22d3ee' : '#888',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.2s'
+                    }}
                 >
                     🏙️ Search by City
                 </button>
                 <button
                     onClick={() => setSearchMode('coords')}
-                    className={`px-4 py-1 rounded-lg text-sm font-bold transition-all ${searchMode === 'coords'
-                            ? 'bg-cyan-500/30 text-cyan-400 border border-cyan-400'
-                            : 'bg-black/50 text-gray-400 border border-gray-600 hover:border-gray-400'
-                        }`}
+                    style={{
+                        padding: '6px 16px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        border: searchMode === 'coords' ? '1px solid #22d3ee' : '1px solid rgba(100,100,100,0.5)',
+                        background: searchMode === 'coords' ? 'rgba(34,211,238,0.15)' : 'rgba(0,0,0,0.5)',
+                        color: searchMode === 'coords' ? '#22d3ee' : '#888',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.2s'
+                    }}
                 >
                     📍 Search by Coordinates
                 </button>
@@ -117,19 +103,40 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
 
             {/* City Search */}
             {searchMode === 'city' && (
-                <form onSubmit={handleCitySearch} className="flex gap-2">
+                <form onSubmit={handleCitySearch} style={{ display: 'flex', gap: '8px' }}>
                     <input
                         type="text"
                         value={cityInput}
                         onChange={(e) => setCityInput(e.target.value)}
                         placeholder="Enter city name (e.g., Tokyo, Paris, New York)..."
-                        className="px-4 py-2 w-96 bg-black/70 backdrop-blur-sm border border-cyan-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400"
                         disabled={isSearching}
+                        style={{
+                            padding: '8px 16px',
+                            width: '380px',
+                            background: 'rgba(0,0,0,0.7)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(34,211,238,0.3)',
+                            borderRadius: '6px',
+                            color: '#ffffff',
+                            fontSize: '13px',
+                            outline: 'none',
+                            fontFamily: 'monospace'
+                        }}
                     />
                     <button
                         type="submit"
                         disabled={isSearching}
-                        className="px-6 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 rounded-lg text-cyan-400 font-bold disabled:opacity-50 transition-colors"
+                        style={{
+                            padding: '8px 20px',
+                            background: 'rgba(34,211,238,0.15)',
+                            border: '1px solid rgba(34,211,238,0.4)',
+                            borderRadius: '6px',
+                            color: '#22d3ee',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontFamily: 'monospace'
+                        }}
                     >
                         {isSearching ? 'Searching...' : 'Search'}
                     </button>
@@ -138,24 +145,56 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
 
             {/* Coordinate Search */}
             {searchMode === 'coords' && (
-                <form onSubmit={handleCoordSearch} className="flex gap-2">
+                <form onSubmit={handleCoordSearch} style={{ display: 'flex', gap: '8px' }}>
                     <input
                         type="text"
                         value={latInput}
                         onChange={(e) => setLatInput(e.target.value)}
                         placeholder="Latitude (-90 to 90)"
-                        className="px-4 py-2 w-44 bg-black/70 backdrop-blur-sm border border-cyan-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400"
+                        style={{
+                            padding: '8px 16px',
+                            width: '180px',
+                            background: 'rgba(0,0,0,0.7)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(34,211,238,0.3)',
+                            borderRadius: '6px',
+                            color: '#ffffff',
+                            fontSize: '13px',
+                            outline: 'none',
+                            fontFamily: 'monospace'
+                        }}
                     />
                     <input
                         type="text"
                         value={lonInput}
                         onChange={(e) => setLonInput(e.target.value)}
                         placeholder="Longitude (-180 to 180)"
-                        className="px-4 py-2 w-44 bg-black/70 backdrop-blur-sm border border-cyan-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400"
+                        style={{
+                            padding: '8px 16px',
+                            width: '180px',
+                            background: 'rgba(0,0,0,0.7)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(34,211,238,0.3)',
+                            borderRadius: '6px',
+                            color: '#ffffff',
+                            fontSize: '13px',
+                            outline: 'none',
+                            fontFamily: 'monospace'
+                        }}
                     />
                     <button
                         type="submit"
-                        className="px-6 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 rounded-lg text-cyan-400 font-bold transition-colors"
+                        style={{
+                            padding: '8px 20px',
+                            background: 'rgba(34,211,238,0.15)',
+                            border: '1px solid rgba(34,211,238,0.4)',
+                            borderRadius: '6px',
+                            color: '#22d3ee',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontFamily: 'monospace'
+                        }}
                     >
                         Go
                     </button>
@@ -163,7 +202,15 @@ export default function LocationSearch({ onLocationSelect }: LocationSearchProps
             )}
 
             {error && (
-                <div className="mt-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm text-center">
+                <div style={{
+                    padding: '6px 16px',
+                    background: 'rgba(239,68,68,0.15)',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                    borderRadius: '6px',
+                    color: '#f87171',
+                    fontSize: '12px',
+                    fontFamily: 'monospace'
+                }}>
                     {error}
                 </div>
             )}
