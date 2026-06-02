@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import NavBar from '../NavBar'
+import NavBar from '../navbar'
 
 const API_BASE = 'https://astralink-prometheus-production.up.railway.app'
 
