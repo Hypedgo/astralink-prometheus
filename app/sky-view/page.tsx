@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import NavBar from '../NavBar'
 
 const API_BASE = 'https://astralink-prometheus-production.up.railway.app'
 
@@ -359,7 +360,7 @@ export default function SkyView() {
 
     return (
         <div style={{ width: '100vw', height: '100vh', background: '#000', overflow: 'hidden', position: 'relative' }}>
-            <canvas
+            <NavBar />`n      <canvas
                 ref={canvasRef}
                 width={typeof window !== 'undefined' ? window.innerWidth : 1440}
                 height={typeof window !== 'undefined' ? window.innerHeight : 900}

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Link from 'next/link'
+import NavBar from '../NavBar';
 import {
     ResponsiveContainer,
     LineChart,
@@ -318,7 +319,7 @@ export default function MissionPlanning() {
                 pointerEvents: 'none'
             }}></div>
 
-            <nav style={{
+            <NavBar />`n            <nav style={{
                 position: 'fixed',
                 top: 0,
                 left: 0,

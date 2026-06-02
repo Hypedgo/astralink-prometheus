@@ -12,6 +12,7 @@ import MissionReadinessCard from '../MissionReadinessCard'
 import { useRef, useState, useEffect } from 'react'
 import AstraLinkCopilot from '../AstraLinkCopilot'
 import Link from 'next/link';
+import NavBar from '../NavBar'
 
 function Earth() {
   const earthTexture = useLoader(THREE.TextureLoader, 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg')
@@ -138,7 +139,7 @@ export default function Home() {
       <SystemStatus />
       <MissionReadinessCard latitude={location.latitude} longitude={location.longitude} />
       <LocationSearch onLocationSelect={handleLocationSelect} />
-      <AstraLinkCopilot latitude={location.latitude} longitude={location.longitude} locationName={location.displayName} />
+      <NavBar />`n      <AstraLinkCopilot latitude={location.latitude} longitude={location.longitude} locationName={location.displayName} />
 
       <Link href="/planning" style={{ ...navBtn, right: '30px' }}
         onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
