@@ -18,116 +18,71 @@ export default function SystemStatus() {
         async function checkHealth() {
             try {
                 const response = await fetch('https://astralink-prometheus-production.up.railway.app/api/health')
-                const data = await response.json()
-
-                // Also fetch the healthcheck endpoint
                 const healthResponse = await fetch('https://astralink-prometheus-production.up.railway.app/api/healthcheck')
                 const healthData = await healthResponse.json()
-
                 setHealth(healthData)
                 setLoading(false)
             } catch (error) {
-                console.error('Health check failed:', error)
                 setLoading(false)
             }
         }
-
         checkHealth()
-        const interval = setInterval(checkHealth, 30000) // Check every 30 seconds
-
+        const interval = setInterval(checkHealth, 30000)
         return () => clearInterval(interval)
     }, [])
 
-    return (
-        <div className="absolute top-6 right-6 z-30 pointer-events-auto">
-            {/* Status Indicator Dot */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="relative group"
-            >
-                <div className={`w-4 h-4 rounded-full ${loading ? 'bg-gray-400' :
-                        health?.status === 'ok' ? 'bg-green-400 animate-pulse' : 'bg-red-400'
-                    } shadow-lg`}></div>
+    const dotColor = loading ? '#9ca3af' : health?.status === 'ok' ? '#4ade80' : '#f87171'
 
-                {/* Tooltip */}
-                <div className="absolute right-0 top-6 bg-black/90 text-white text-xs px-3 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    MCP Server Status
-                </div>
+    return (
+        <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 1100, pointerEvents: 'auto' }}>
+            <button onClick={() => setIsOpen(!isOpen)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', position: 'relative' }}>
+                <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: dotColor, boxShadow: `0 0 8px ${dotColor}` }} />
             </button>
 
-            {/* Expanded Status Panel */}
             {isOpen && (
-                <div className="absolute right-0 top-8 w-80 bg-black/90 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-4 shadow-xl">
-                    <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-cyan-400 font-bold text-sm flex items-center">
-                            <span className="w-2 h-2 bg-cyan-400 rounded-full mr-2 animate-pulse"></span>
+                <div style={{ position: 'absolute', right: 0, top: '28px', width: '280px', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(34,211,238,0.3)', borderRadius: '8px', padding: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <div style={{ color: '#22d3ee', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22d3ee' }} />
                             SYSTEM STATUS
-                        </h3>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="text-gray-400 hover:text-white text-xl leading-none"
-                        >
-                            ×
-                        </button>
+                        </div>
+                        <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: '#9ca3af', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}>×</button>
                     </div>
 
-                    <div className="space-y-3 text-sm">
-                        {/* MCP Server Status */}
-                        <div className="flex justify-between items-center">
-                            <span className="text-gray-400">MCP Server</span>
-                            <span className={`font-bold ${health?.status === 'ok' ? 'text-green-400' : 'text-red-400'
-                                }`}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#9ca3af' }}>MCP Server</span>
+                            <span style={{ fontWeight: 700, color: health?.status === 'ok' ? '#4ade80' : '#f87171' }}>
                                 {loading ? 'CHECKING...' : health?.status === 'ok' ? '● ONLINE' : '● OFFLINE'}
                             </span>
                         </div>
-
-                        {/* Workspace */}
-                        <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Workspace</span>
-                            <span className={`font-bold ${health?.workspace_ok ? 'text-green-400' : 'text-red-400'
-                                }`}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#9ca3af' }}>Workspace</span>
+                            <span style={{ fontWeight: 700, color: health?.workspace_ok ? '#4ade80' : '#f87171' }}>
                                 {health?.workspace_ok ? '✓ OK' : '✗ ERROR'}
                             </span>
                         </div>
-
-                        {/* N2YO API Key */}
-                        <div className="flex justify-between items-center">
-                            <span className="text-gray-400">N2YO API Key</span>
-                            <span className={`font-bold ${health?.n2yo_api_key_set ? 'text-green-400' : 'text-yellow-400'
-                                }`}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#9ca3af' }}>N2YO API Key</span>
+                            <span style={{ fontWeight: 700, color: health?.n2yo_api_key_set ? '#4ade80' : '#eab308' }}>
                                 {health?.n2yo_api_key_set ? '✓ SET' : '⚠ MISSING'}
                             </span>
                         </div>
 
-                        <div className="h-px bg-cyan-500/20 my-2"></div>
+                        <div style={{ height: '1px', background: 'rgba(34,211,238,0.2)', margin: '4px 0' }} />
 
-                        {/* Active Features */}
-                        <div className="text-xs text-gray-500 space-y-1">
-                            <div className="font-bold text-cyan-400 mb-1">ACTIVE FEATURES:</div>
-                            <div className="flex items-center">
-                                <span className="text-green-400 mr-2">✓</span>
-                                <span>Space Weather (NOAA)</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="text-green-400 mr-2">✓</span>
-                                <span>Earth Weather (Open-Meteo)</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="text-green-400 mr-2">✓</span>
-                                <span>ISS Pass Predictions (N2YO)</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="text-green-400 mr-2">✓</span>
-                                <span>Location Geocoding (OSM)</span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="text-green-400 mr-2">✓</span>
-                                <span>Mission Brief Generator</span>
-                            </div>
+                        <div style={{ fontSize: '11px', color: '#6b7280' }}>
+                            <div style={{ color: '#22d3ee', fontWeight: 700, marginBottom: '6px' }}>ACTIVE FEATURES:</div>
+                            {['Space Weather (NOAA)', 'Earth Weather (Open-Meteo)', 'ISS Pass Predictions (N2YO)', 'Location Geocoding (OSM)', 'Mission Brief Generator'].map(f => (
+                                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                    <span style={{ color: '#4ade80' }}>✓</span>
+                                    <span>{f}</span>
+                                </div>
+                            ))}
                         </div>
 
                         {health?.timestamp_local && (
-                            <div className="text-xs text-gray-500 mt-3 text-center">
+                            <div style={{ fontSize: '11px', color: '#6b7280', textAlign: 'center' }}>
                                 Last check: {new Date(health.timestamp_local).toLocaleTimeString()}
                             </div>
                         )}
