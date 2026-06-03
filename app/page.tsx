@@ -68,7 +68,7 @@ export default function LandingPage() {
             {stage === 'video' && (
                 <div style={{ position: 'fixed', inset: 0, background: '#000000', zIndex: 9999 }}>
                     <video ref={videoRef} onEnded={handleVideoEnd} style={{ width: '100%', height: '100%', objectFit: 'cover' }} playsInline>
-                        <source src="/intro-video.mov" type="video/quicktime" />
+                        <source src="/intro-video.mp4" type="video/mp4" />
                     </video>
                     <button onClick={handleSkipVideo} style={{ position: 'absolute', bottom: '40px', right: '40px', padding: '12px 24px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '6px', color: 'rgba(255,255,255,0.8)', fontSize: '12px', fontWeight: '600', letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', zIndex: 60 }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.7)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'; }}
