@@ -1,0 +1,74 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/chunks/app/_not-found/page-71f680bd8d8f67aa.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/css/ec8ac45e589edcc5.css",
+      "static/css/3c177ffefca10487.css",
+      "static/css/24846ea23dfd46df.css",
+      "static/chunks/app/layout-1d0d2f0ddebd66e6.js"
+    ],
+    "/mission-control/page": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/chunks/bd904a5c-acedcd5397b63548.js",
+      "static/chunks/51749ec1-ad5698e8d67d2806.js",
+      "static/chunks/b536a0f1-b2df3d9a07292adc.js",
+      "static/chunks/67-7fddda23f1261e58.js",
+      "static/chunks/587-2fd6a10f3f4f7f73.js",
+      "static/chunks/app/mission-control/page-22eaac2754c39e86.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/chunks/67-7fddda23f1261e58.js",
+      "static/chunks/app/page-2c15a3cbb82abb95.js"
+    ],
+    "/sky-view/page": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/chunks/bd904a5c-acedcd5397b63548.js",
+      "static/chunks/51749ec1-ad5698e8d67d2806.js",
+      "static/chunks/b536a0f1-b2df3d9a07292adc.js",
+      "static/chunks/0f8af13e-a8a1e21fafd5074d.js",
+      "static/chunks/587-2fd6a10f3f4f7f73.js",
+      "static/chunks/649-944446b4750f505b.js",
+      "static/chunks/app/sky-view/page-50f03c1049a754c9.js"
+    ],
+    "/planning/page": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/chunks/67-7fddda23f1261e58.js",
+      "static/chunks/701-9c572e97e7fb9468.js",
+      "static/chunks/786-a35322e405fcf4db.js",
+      "static/chunks/app/planning/page-b59c9f9e8974b984.js"
+    ],
+    "/satellites/page": [
+      "static/chunks/webpack-5a0cb18c24db9410.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-cb395327542b56ef.js",
+      "static/chunks/main-app-e3046dd2e591a9dd.js",
+      "static/chunks/67-7fddda23f1261e58.js",
+      "static/chunks/701-9c572e97e7fb9468.js",
+      "static/chunks/281-435a913ba6e34b91.js",
+      "static/chunks/app/satellites/page-dd53632acd64ad67.js"
+    ]
+  }
+}

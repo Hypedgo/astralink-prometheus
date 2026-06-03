@@ -407,7 +407,7 @@ def astralink_earth_weather(latitude: float, longitude: float) -> Dict[str, Any]
     """
     try:
         # Free weather API (no key needed!)
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=cloud_cover"
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=cloud_cover,temperature_2m&timezone=auto"
         response = requests.get(url, timeout=10)
         data = response.json()
 
