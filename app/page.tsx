@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import NavBar from './NavBar'
 import { useState, useRef, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AOS from 'aos';
