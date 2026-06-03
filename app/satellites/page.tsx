@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link'
-import NavBar from '../navbar';
+import NavBar from '../NavBar';
 import {
     ResponsiveContainer,
     LineChart,

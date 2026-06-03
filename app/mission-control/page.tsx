@@ -11,7 +11,7 @@ import SystemStatus from '../SystemStatus'
 import MissionReadinessCard from '../MissionReadinessCard'
 import { useRef, useState, useEffect } from 'react'
 import AstraLinkCopilot from '../AstraLinkCopilot'
-import NavBar from '../navbar'
+import NavBar from '../NavBar'
 
 function Earth() {
   const earthTexture = useLoader(THREE.TextureLoader, 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg')
