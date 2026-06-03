@@ -11,7 +11,6 @@ import SystemStatus from '../SystemStatus'
 import MissionReadinessCard from '../MissionReadinessCard'
 import { useRef, useState, useEffect } from 'react'
 import AstraLinkCopilot from '../AstraLinkCopilot'
-import Link from 'next/link';
 import NavBar from '../navbar'
 
 function Earth() {
@@ -97,15 +96,6 @@ function CameraController({ location, controlsRef }: { location: { latitude: num
   return null
 }
 
-const navBtn: React.CSSProperties = {
-  position: 'fixed', top: '30px', zIndex: 1000,
-  background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)',
-  border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '0',
-  padding: '14px 28px', color: '#ffffff', textDecoration: 'none',
-  fontSize: '13px', fontWeight: '500', letterSpacing: '1px',
-  transition: 'all 0.3s ease', fontFamily: "'Helvetica Neue', Arial, sans-serif"
-}
-
 export default function Home() {
   const controlsRef = useRef<any>(null)
   const [loading, setLoading] = useState(true)
@@ -135,30 +125,12 @@ export default function Home() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000000' }}>
+      <NavBar />
       <MissionBrief location={location} />
       <SystemStatus />
       <MissionReadinessCard latitude={location.latitude} longitude={location.longitude} />
       <LocationSearch onLocationSelect={handleLocationSelect} />
-      <NavBar />`n      <AstraLinkCopilot latitude={location.latitude} longitude={location.longitude} locationName={location.displayName} />
-
-      <Link href="/planning" style={{ ...navBtn, right: '30px' }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-        MISSION PLANNING
-      </Link>
-
-      <Link href="/satellites" style={{ ...navBtn, right: '240px' }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-        SATELLITES
-      </Link>
-
-      <Link href="/sky-view" style={{ ...navBtn, right: '420px' }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-        SKY VIEW
-      </Link>
-
+      <AstraLinkCopilot latitude={location.latitude} longitude={location.longitude} locationName={location.displayName} />
       <Canvas camera={{ position: [0, 1, 6], fov: 45 }}>
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
         <ambientLight intensity={1.2} />
