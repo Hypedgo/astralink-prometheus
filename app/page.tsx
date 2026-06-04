@@ -54,13 +54,8 @@ export default function LandingPage() {
             {/* STAGE 1: ENTER Screen */}
             {stage === 'enter' && (
                 <div onClick={handleEnter} style={{ position: 'fixed', inset: 0, background: '#000000', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                    <div style={{ position: 'absolute', top: '60px', textAlign: 'center' }}>
-                        <div style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', letterSpacing: '4px', marginBottom: '16px', fontWeight: '600', textTransform: 'uppercase' }}>Space Operations Platform</div>
-                        <div style={{ color: '#ffffff', fontSize: '48px', letterSpacing: '12px', fontWeight: '800', textTransform: 'uppercase' }}>ASTRALINK</div>
-                        <div style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '12px', letterSpacing: '6px', marginTop: '12px', fontWeight: '300', textTransform: 'uppercase' }}>Prometheus</div>
-                    </div>
+                    <div style={{ color: '#ffffff', fontSize: '48px', letterSpacing: '12px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '40px' }}>ASTRALINK</div>
                     <div style={{ fontSize: '24px', letterSpacing: '8px', fontWeight: '300', color: '#00ff88', textTransform: 'uppercase', animation: 'pulse 2s ease-in-out infinite' }}>Enter</div>
-                    <div style={{ position: 'absolute', bottom: '60px', color: 'rgba(255, 255, 255, 0.3)', fontSize: '11px', letterSpacing: '3px', fontWeight: '300', textTransform: 'uppercase' }}>Click to continue</div>
                 </div>
             )}
 
