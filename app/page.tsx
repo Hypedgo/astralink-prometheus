@@ -35,20 +35,13 @@ function SpaceBackground() {
             return {
                 angle,
                 dist,
-                speed: 1.2 + Math.random() * 3.5,
+                speed: 0.4 + Math.random() * 1.2,
                 size: 0.3 + Math.random() * 2,
                 opacity: 0.5 + Math.random() * 0.5,
                 color: Math.random() > 0.9 ? '180,200,255' : Math.random() > 0.8 ? '255,220,180' : '255,255,255'
             }
         })
 
-        // A few large bright cross-shaped stars
-        const brightStars = Array.from({ length: 3 }, () => ({
-            x: 0.2 + Math.random() * 0.6,
-            y: 0.2 + Math.random() * 0.6,
-            size: 3 + Math.random() * 3,
-            phase: Math.random() * Math.PI * 2,
-        }))
 
         const shootingStars: { x: number, y: number, vx: number, vy: number, len: number, life: number, maxLife: number }[] = []
         let shootTimer = 0
@@ -193,14 +186,6 @@ function SpaceBackground() {
                 ctx.arc(sx, sy, Math.max(0.2, size), 0, Math.PI * 2)
                 ctx.fillStyle = `rgba(${s.color},${alpha})`
                 ctx.fill()
-            })
-
-            // Bright cross stars
-            brightStars.forEach(bs => {
-                const bx = bs.x * canvas.width
-                const by = bs.y * canvas.height
-                const twinkle = 0.7 + 0.3 * Math.sin(t * 1.5 + bs.phase)
-                drawCrossStar(bx, by, bs.size, twinkle)
             })
 
             // Shooting stars
