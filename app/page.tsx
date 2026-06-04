@@ -9,13 +9,13 @@ import 'aos/dist/aos.css';
 
 export default function LandingPage() {
     const [stage, setStage] = useState<'enter' | 'video' | 'white' | 'opening'>(() => {
-        if (typeof window !== 'undefined' && sessionStorage.getItem('visited')) {
+        if (typeof window !== 'undefined' && localStorage.getItem('visited')) {
             return 'opening';
         }
         return 'enter';
     });
     const [eyeOpen, setEyeOpen] = useState(() => {
-        if (typeof window !== 'undefined' && sessionStorage.getItem('visited')) {
+        if (typeof window !== 'undefined' && localStorage.getItem('visited')) {
             return 100;
         }
         return 0;
@@ -29,7 +29,7 @@ export default function LandingPage() {
     }, []);
 
     const handleEnter = () => {
-        sessionStorage.setItem('visited', 'true');
+        localStorage.setItem('visited', 'true');
         setStage('video');
         setTimeout(() => {
             if (videoRef.current) {
@@ -52,7 +52,7 @@ export default function LandingPage() {
     };
 
     const animateEyeOpen = () => {
-        sessionStorage.setItem('visited', 'true');
+        localStorage.setItem('visited', 'true');
         let progress = 0;
         const interval = setInterval(() => {
             progress += 1.5;
