@@ -8,7 +8,12 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 export default function LandingPage() {
-    const [stage, setStage] = useState<'enter' | 'video' | 'white' | 'opening'>('enter');
+    const [stage, setStage] = useState<'enter' | 'video' | 'white' | 'opening'>(() => {
+        if (typeof window !== 'undefined' && sessionStorage.getItem('visited')) {
+            return 'opening';
+        }
+        return 'enter';
+    });
     const [eyeOpen, setEyeOpen] = useState(0);
     const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -19,6 +24,7 @@ export default function LandingPage() {
     }, []);
 
     const handleEnter = () => {
+        sessionStorage.setItem('visited', 'true');
         setStage('video');
         setTimeout(() => {
             if (videoRef.current) {
@@ -41,6 +47,7 @@ export default function LandingPage() {
     };
 
     const animateEyeOpen = () => {
+        sessionStorage.setItem('visited', 'true');
         let progress = 0;
         const interval = setInterval(() => {
             progress += 1.5;
