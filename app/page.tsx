@@ -17,80 +17,142 @@ function SpaceBackground() {
         canvas.width = window.innerWidth
         canvas.height = window.innerHeight
 
-        const stars = Array.from({ length: 1000 }, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2.2,
-            brightness: 0.4 + Math.random() * 0.6,
-            twinkleSpeed: 0.3 + Math.random() * 0.7,
-            twinkleOffset: Math.random() * Math.PI * 2,
-            color: Math.random() > 0.85 ? `${200 + Math.random() * 55},${200 + Math.random() * 55},255` : Math.random() > 0.7 ? `255,${220 + Math.random() * 35},${180 + Math.random() * 50}` : '255,255,255'
-        }))
+        // Three layers of stars — close, mid, far — for parallax depth
+        const createLayer = (count: number, minSize: number, maxSize: number, speed: number) =>
+            Array.from({ length: count }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: minSize + Math.random() * (maxSize - minSize),
+                speed,
+                opacity: 0.3 + Math.random() * 0.7,
+                twinkle: Math.random() * Math.PI * 2,
+            }))
+
+        const far = createLayer(500, 0.2, 0.7, 0.3)
+        const mid = createLayer(200, 0.5, 1.2, 0.8)
+        const near = createLayer(60, 1.0, 2.5, 2.0)
+
+        // Occasional shooting stars
+        const shootingStars: { x: number, y: number, len: number, speed: number, angle: number, life: number, maxLife: number }[] = []
 
         let animFrame: number
         let t = 0
 
-        const draw = () => {
-            t += 0.008
-            ctx.fillStyle = '#00000a'
-            ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-            // Nebula clouds
-            const nebulas = [
-                { x: canvas.width * 0.15, y: canvas.height * 0.25, r: 350, color: '30, 80, 200' },
-                { x: canvas.width * 0.75, y: canvas.height * 0.55, r: 280, color: '100, 40, 180' },
-                { x: canvas.width * 0.45, y: canvas.height * 0.75, r: 220, color: '10, 140, 100' },
-                { x: canvas.width * 0.85, y: canvas.height * 0.15, r: 180, color: '180, 60, 100' },
-            ]
-            nebulas.forEach(n => {
-                const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r)
-                grad.addColorStop(0, `rgba(${n.color}, 0.07)`)
-                grad.addColorStop(0.5, `rgba(${n.color}, 0.03)`)
-                grad.addColorStop(1, `rgba(${n.color}, 0)`)
-                ctx.fillStyle = grad
-                ctx.fillRect(0, 0, canvas.width, canvas.height)
+        const spawnShootingStar = () => {
+            shootingStars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.5,
+                len: 80 + Math.random() * 120,
+                speed: 8 + Math.random() * 6,
+                angle: Math.PI / 6 + (Math.random() - 0.5) * 0.3,
+                life: 0,
+                maxLife: 40 + Math.random() * 20,
             })
+        }
 
-            // Milky Way band
-            const mwGrad = ctx.createLinearGradient(0, canvas.height * 0.2, canvas.width, canvas.height * 0.8)
-            mwGrad.addColorStop(0, 'rgba(150,160,220,0)')
-            mwGrad.addColorStop(0.3, 'rgba(150,160,220,0.04)')
-            mwGrad.addColorStop(0.5, 'rgba(170,180,240,0.07)')
-            mwGrad.addColorStop(0.7, 'rgba(150,160,220,0.04)')
-            mwGrad.addColorStop(1, 'rgba(150,160,220,0)')
-            ctx.fillStyle = mwGrad
-            ctx.fillRect(0, 0, canvas.width, canvas.height)
+        let shootingStarTimer = 0
 
-            // Stars
-            stars.forEach(star => {
-                const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(t * star.twinkleSpeed + star.twinkleOffset))
-                const alpha = twinkle * star.brightness
+        const drawStar = (x: number, y: number, size: number, alpha: number) => {
+            ctx.beginPath()
+            ctx.arc(x, y, size, 0, Math.PI * 2)
+            ctx.fillStyle = `rgba(255,255,255,${alpha})`
+            ctx.fill()
 
-                if (star.size > 1.4) {
-                    const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 5)
-                    glow.addColorStop(0, `rgba(${star.color}, ${alpha * 0.4})`)
-                    glow.addColorStop(1, 'transparent')
-                    ctx.fillStyle = glow
-                    ctx.beginPath()
-                    ctx.arc(star.x, star.y, star.size * 5, 0, Math.PI * 2)
-                    ctx.fill()
-                }
-
+            if (size > 1) {
+                const glow = ctx.createRadialGradient(x, y, 0, x, y, size * 5)
+                glow.addColorStop(0, `rgba(200,220,255,${alpha * 0.5})`)
+                glow.addColorStop(1, 'transparent')
+                ctx.fillStyle = glow
                 ctx.beginPath()
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
-                ctx.fillStyle = `rgba(${star.color}, ${alpha})`
+                ctx.arc(x, y, size * 5, 0, Math.PI * 2)
                 ctx.fill()
+            }
+        }
+
+        const draw = () => {
+            t += 0.016
+            shootingStarTimer += 1
+
+            // Pure black space background
+            ctx.fillStyle = '#000000'
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+            // Very subtle deep space tint — barely visible
+            const deepGlow = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.4, 0, canvas.width * 0.5, canvas.height * 0.4, canvas.width * 0.7)
+            deepGlow.addColorStop(0, 'rgba(5, 5, 20, 0.5)')
+            deepGlow.addColorStop(1, 'rgba(0,0,0,0)')
+            ctx.fillStyle = deepGlow
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+            // Far stars — barely moving
+            far.forEach(s => {
+                s.y += s.speed
+                s.twinkle += 0.02
+                if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width }
+                const alpha = s.opacity * (0.6 + 0.4 * Math.sin(s.twinkle))
+                drawStar(s.x, s.y, s.size, alpha)
             })
+
+            // Mid stars
+            mid.forEach(s => {
+                s.y += s.speed
+                s.twinkle += 0.03
+                if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width }
+                const alpha = s.opacity * (0.6 + 0.4 * Math.sin(s.twinkle))
+                drawStar(s.x, s.y, s.size, alpha)
+            })
+
+            // Near stars — fast, creates warp feeling
+            near.forEach(s => {
+                s.y += s.speed
+                s.twinkle += 0.05
+                if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width }
+                const alpha = s.opacity * (0.7 + 0.3 * Math.sin(s.twinkle))
+
+                // Draw streak trail for fast stars
+                ctx.beginPath()
+                ctx.moveTo(s.x, s.y)
+                ctx.lineTo(s.x, s.y - s.speed * 3)
+                ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.3})`
+                ctx.lineWidth = s.size * 0.5
+                ctx.stroke()
+
+                drawStar(s.x, s.y, s.size, alpha)
+            })
+
+            // Shooting stars
+            if (shootingStarTimer > 180 && Math.random() < 0.02) {
+                spawnShootingStar()
+                shootingStarTimer = 0
+            }
+
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                const ss = shootingStars[i]
+                ss.life++
+                ss.x += Math.cos(ss.angle) * ss.speed
+                ss.y += Math.sin(ss.angle) * ss.speed
+                const progress = ss.life / ss.maxLife
+                const alpha = progress < 0.3 ? progress / 0.3 : 1 - (progress - 0.3) / 0.7
+
+                const grad = ctx.createLinearGradient(ss.x, ss.y, ss.x - Math.cos(ss.angle) * ss.len, ss.y - Math.sin(ss.angle) * ss.len)
+                grad.addColorStop(0, `rgba(255,255,255,${alpha})`)
+                grad.addColorStop(1, 'rgba(255,255,255,0)')
+                ctx.beginPath()
+                ctx.moveTo(ss.x, ss.y)
+                ctx.lineTo(ss.x - Math.cos(ss.angle) * ss.len, ss.y - Math.sin(ss.angle) * ss.len)
+                ctx.strokeStyle = grad
+                ctx.lineWidth = 1.5
+                ctx.stroke()
+
+                if (ss.life >= ss.maxLife) shootingStars.splice(i, 1)
+            }
 
             animFrame = requestAnimationFrame(draw)
         }
 
         draw()
 
-        const handleResize = () => {
-            canvas.width = window.innerWidth
-            canvas.height = window.innerHeight
-        }
+        const handleResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
         window.addEventListener('resize', handleResize)
         return () => { cancelAnimationFrame(animFrame); window.removeEventListener('resize', handleResize) }
     }, [])
@@ -175,41 +237,39 @@ export default function LandingPage() {
                     <SpaceBackground />
                     <NavBar />
 
-                    {/* Hero Section */}
-                    <section style={{ background: 'transparent', minHeight: '100vh', paddingTop: '80px', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
+                    <section style={{ background: 'transparent', minHeight: '100vh', paddingTop: '80px', position: 'relative', zIndex: 1 }}>
                         <div className="container position-relative">
                             <div className="row align-items-center" style={{ minHeight: 'calc(100vh - 80px)' }}>
                                 <div className="col-lg-6 order-2 order-lg-1" data-aos="fade-right">
-                                    <div style={{ fontSize: '12px', color: 'rgba(0, 255, 136, 0.7)', letterSpacing: '3px', marginBottom: '20px', fontWeight: '600', textTransform: 'uppercase' }}>Space Operations Platform</div>
+                                    <div style={{ fontSize: '12px', color: 'rgba(0,255,136,0.7)', letterSpacing: '3px', marginBottom: '20px', fontWeight: '600', textTransform: 'uppercase' }}>Space Operations Platform</div>
                                     <h1 style={{ fontSize: '72px', fontWeight: '900', color: '#ffffff', lineHeight: '1.1', marginBottom: '30px', letterSpacing: '-2px' }}>
                                         Mission Intelligence<br />
                                         <span style={{ color: '#00ff88' }}>Redefined</span>
                                     </h1>
-                                    <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.8', marginBottom: '40px', maxWidth: '500px' }}>
+                                    <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.8', marginBottom: '40px', maxWidth: '500px' }}>
                                         Real-time satellite tracking, orbital forecasting, and space weather analysis for professional observation operations.
                                     </p>
-                                    <Link href="/mission-control" style={{ display: 'inline-block', padding: '18px 50px', background: 'linear-gradient(135deg, #00ff88, #00cc66)', border: 'none', borderRadius: '8px', color: '#000000', fontSize: '14px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', textDecoration: 'none', transition: 'all 0.3s', boxShadow: '0 10px 40px rgba(0, 255, 136, 0.3)' }}
-                                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 50px rgba(0, 255, 136, 0.5)'; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 255, 136, 0.3)'; }}>
+                                    <Link href="/mission-control" style={{ display: 'inline-block', padding: '18px 50px', background: 'linear-gradient(135deg, #00ff88, #00cc66)', border: 'none', borderRadius: '8px', color: '#000000', fontSize: '14px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', textDecoration: 'none', transition: 'all 0.3s', boxShadow: '0 10px 40px rgba(0,255,136,0.3)' }}
+                                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 50px rgba(0,255,136,0.5)'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,255,136,0.3)'; }}>
                                         Launch Platform
                                     </Link>
                                 </div>
                                 <div className="col-lg-6 order-1 order-lg-2" data-aos="fade-left" data-aos-delay="200">
-                                    <div style={{ position: 'relative', padding: '40px' }}>
-                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+                                        <div style={{ width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    {/* Features Section */}
-                    <section style={{ background: 'rgba(0,0,0,0.6)', padding: '100px 0', borderTop: '1px solid rgba(0, 255, 136, 0.1)', position: 'relative', zIndex: 1 }}>
+                    <section style={{ background: 'rgba(0,0,0,0.8)', padding: '100px 0', borderTop: '1px solid rgba(0,255,136,0.1)', position: 'relative', zIndex: 1 }}>
                         <div className="container">
                             <div className="row mb-5" data-aos="fade-up">
                                 <div className="col-12 text-center">
                                     <h2 style={{ fontSize: '48px', fontWeight: '800', color: '#ffffff', marginBottom: '20px' }}>Comprehensive Operations Suite</h2>
-                                    <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.5)', maxWidth: '600px', margin: '0 auto' }}>Everything you need for satellite observation and mission planning</p>
+                                    <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.5)', maxWidth: '600px', margin: '0 auto' }}>Everything you need for satellite observation and mission planning</p>
                                 </div>
                             </div>
                             <div className="row g-4">
@@ -236,7 +296,7 @@ export default function LandingPage() {
                                     </Link>
                                 </div>
                                 <div className="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-                                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(0,255,136,0.1)', borderRadius: '16px', padding: '40px', height: '100%', transition: 'all 0.3s', opacity: 0.5, backdropFilter: 'blur(10px)' }}>
+                                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(0,255,136,0.1)', borderRadius: '16px', padding: '40px', height: '100%', opacity: 0.5, backdropFilter: 'blur(10px)' }}>
                                         <div style={{ fontSize: '48px', marginBottom: '20px' }}>🛰️</div>
                                         <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#00ff88', marginBottom: '15px' }}>Coming Soon</h3>
                                         <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.7', margin: 0 }}>Advanced satellite operations, pass predictions, and mission planning tools</p>
@@ -246,8 +306,7 @@ export default function LandingPage() {
                         </div>
                     </section>
 
-                    {/* Stats Section */}
-                    <section style={{ background: 'rgba(0,0,0,0.5)', padding: '100px 0', borderTop: '1px solid rgba(0,255,136,0.1)', position: 'relative', zIndex: 1 }}>
+                    <section style={{ background: 'rgba(0,0,0,0.8)', padding: '100px 0', borderTop: '1px solid rgba(0,255,136,0.1)', position: 'relative', zIndex: 1 }}>
                         <div className="container">
                             <div className="row g-4 text-center">
                                 {[{ num: '4', label: 'Satellites Tracked' }, { num: '24/7', label: 'Real-Time Tracking' }, { num: '27', label: 'Star Catalog' }, { num: 'LIVE', label: 'Space Weather' }].map((stat, i) => (
@@ -260,7 +319,6 @@ export default function LandingPage() {
                         </div>
                     </section>
 
-                    {/* Eye Opening Overlay */}
                     <div style={{ position: 'fixed', inset: 0, zIndex: 10000, pointerEvents: 'none' }}>
                         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to bottom, #ffffff 0%, #ffffff 85%, rgba(255,255,255,0.8) 95%, transparent 100%)', transform: `translateY(-${eyeOpen}%)`, transition: 'transform 0.05s ease-out', filter: 'blur(1px)' }}></div>
                         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to top, #ffffff 0%, #ffffff 85%, rgba(255,255,255,0.8) 95%, transparent 100%)', transform: `translateY(${eyeOpen}%)`, transition: 'transform 0.05s ease-out', filter: 'blur(1px)' }}></div>
