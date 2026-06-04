@@ -14,7 +14,12 @@ export default function LandingPage() {
         }
         return 'enter';
     });
-    const [eyeOpen, setEyeOpen] = useState(0);
+    const [eyeOpen, setEyeOpen] = useState(() => {
+        if (typeof window !== 'undefined' && sessionStorage.getItem('visited')) {
+            return 100;
+        }
+        return 0;
+    });
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
