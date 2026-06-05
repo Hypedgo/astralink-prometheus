@@ -22,7 +22,7 @@ export default function NavBar() {
             padding: '0 24px', zIndex: 2000
         }}>
             <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-                <Image src="/logo.png" alt="AstraLink" width={250} height={60} style={{ objectFit: 'contain' }} />
+                <Image src="/logo.png" alt="AstraLink" width={500} height={110} style={{ objectFit: 'contain' }} />
             </Link>
 
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
