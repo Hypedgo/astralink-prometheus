@@ -16,7 +16,7 @@ export default function NavBar() {
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, height: '56px',
-            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
+            background: 'rgba(0,0,0,0.15)', backdropFilter: 'blur(8px)',
             borderBottom: '1px solid rgba(34,211,238,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0 24px', zIndex: 2000
