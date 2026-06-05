@@ -19,7 +19,7 @@ export default function NavBar() {
             background: 'rgba(0,0,0,0.15)', backdropFilter: 'blur(8px)',
             borderBottom: '1px solid rgba(34,211,238,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '0 2px', zIndex: 2000
+            padding: '0 0px', zIndex: 2000
         }}>
             <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                 <Image src="/logo.png" alt="AstraLink" width={600} height={170} style={{ objectFit: 'contain' }} />
