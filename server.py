@@ -411,7 +411,7 @@ def astralink_earth_weather(latitude: float, longitude: float) -> Dict[str, Any]
         response = requests.get(url, timeout=10)
         data = response.json()
 
-        cloud_percent = data["current"]["cloud_cover"]
+        current = data.get("current", {}); cloud_percent = current.get("cloud_cover", current.get("cloudcover", 0))
 
         # Is the sky clear enough?
         if cloud_percent < 30:
@@ -425,7 +425,7 @@ def astralink_earth_weather(latitude: float, longitude: float) -> Dict[str, Any]
             "location": {"lat": latitude, "lon": longitude},
             "cloud_cover_percent": cloud_percent,
             "visibility": visibility,
-            "timestamp": data["current"]["time"]
+            "timestamp": data.get("current", {}).get("time", "")
         }
     except Exception as e:
         return {
