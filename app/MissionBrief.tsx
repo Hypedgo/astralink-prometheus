@@ -5,6 +5,7 @@ import { useSpaceWeather } from './useSpaceWeather'
 import { useWeather } from './useWeather'
 import { useISSPasses } from './useISSPasses'
 import { useBriefGenerator } from './useBriefGenerator'
+import MissionReadinessCard from './MissionReadinessCard'
 
 interface MissionBriefProps {
     location: {
@@ -31,7 +32,9 @@ export default function MissionBrief({ location }: MissionBriefProps) {
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
 
             {/* Left Panel */}
-            <div style={{ position: 'absolute', left: '1.5rem', top: '72px', pointerEvents: 'auto' }}>
+            <div style={{ position: 'absolute', left: '1.5rem', top: '72px', pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                {/* Space Weather */}
                 <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(6,182,212,0.3)', borderRadius: '0.5rem', padding: '1rem', width: '18rem' }}>
                     <h2 style={{ color: '#22d3ee', fontSize: '0.875rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', margin: '0 0 0.75rem 0' }}>
                         <span style={{ width: '0.5rem', height: '0.5rem', background: '#22d3ee', borderRadius: '50%', marginRight: '0.5rem', display: 'inline-block' }}></span>
@@ -62,7 +65,8 @@ export default function MissionBrief({ location }: MissionBriefProps) {
                     </div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(6,182,212,0.3)', borderRadius: '0.5rem', padding: '1rem', width: '18rem', marginTop: '1rem' }}>
+                {/* Observation Conditions */}
+                <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(6,182,212,0.3)', borderRadius: '0.5rem', padding: '1rem', width: '18rem' }}>
                     <h2 style={{ color: '#22d3ee', fontSize: '0.875rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', margin: '0 0 0.75rem 0' }}>
                         <span style={{ width: '0.5rem', height: '0.5rem', background: '#22d3ee', borderRadius: '50%', marginRight: '0.5rem', display: 'inline-block' }}></span>
                         OBSERVATION CONDITIONS
@@ -93,6 +97,10 @@ export default function MissionBrief({ location }: MissionBriefProps) {
                         </div>
                     </div>
                 </div>
+
+                {/* Mission Readiness — flows naturally after Observation Conditions */}
+                <MissionReadinessCard latitude={location.latitude} longitude={location.longitude} />
+
             </div>
 
             {/* Right Panel - ISS Tracking */}

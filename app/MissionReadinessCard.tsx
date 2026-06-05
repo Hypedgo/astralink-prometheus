@@ -55,10 +55,10 @@ export default function MissionReadinessCard({ latitude, longitude }: MissionRea
 
     return (
         <div style={{
-            position: 'fixed',
-            top: '520px',
-            left: '25px',
-            zIndex: 100,
+            position: 'relative',
+            
+            
+            
             width: '285px',
             background: 'rgba(0, 20, 40, 0.6)',
             backdropFilter: 'blur(10px)',
