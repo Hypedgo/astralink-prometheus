@@ -1,6 +1,6 @@
 'use client'
-
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 export default function NavBar() {
@@ -21,8 +21,8 @@ export default function NavBar() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0 24px', zIndex: 2000
         }}>
-            <Link href="/" style={{ color: '#22d3ee', fontFamily: 'monospace', fontWeight: 800, fontSize: '16px', letterSpacing: '4px', textDecoration: 'none' }}>
-                ASTRALINK
+            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                <Image src="/logo.png" alt="AstraLink" width={140} height={40} style={{ objectFit: 'contain' }} />
             </Link>
 
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
