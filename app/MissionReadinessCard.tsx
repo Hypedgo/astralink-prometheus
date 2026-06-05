@@ -27,7 +27,7 @@ export default function MissionReadinessCard({ latitude, longitude }: MissionRea
         fetchReadiness();
         const interval = setInterval(fetchReadiness, 5 * 60 * 1000);
         return () => clearInterval(interval);
-    }, [latitude, longitude]); // Re-fetch when location changes!
+    }, [latitude, longitude]);
 
     const fetchReadiness = async () => {
         try {
@@ -43,9 +43,8 @@ export default function MissionReadinessCard({ latitude, longitude }: MissionRea
         }
     };
 
-    if (loading || !data) return null;
-
     const getTierColor = () => {
+        if (!data) return '#6b7280';
         switch (data.tier) {
             case 'GREEN': return '#22c55e';
             case 'YELLOW': return '#eab308';
@@ -68,135 +67,52 @@ export default function MissionReadinessCard({ latitude, longitude }: MissionRea
             padding: '16px',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'
         }}>
-            {/* Header */}
-            <div style={{
-                color: '#00d9ff',
-                fontSize: '11px',
-                fontWeight: '600',
-                marginBottom: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                letterSpacing: '0.5px'
-            }}>
-                <span style={{
-                    width: '6px',
-                    height: '6px',
-                    background: '#00d9ff',
-                    borderRadius: '50%',
-                    marginRight: '8px',
-                    boxShadow: '0 0 8px #00d9ff'
-                }}></span>
+            <div style={{ color: '#00d9ff', fontSize: '11px', fontWeight: '600', marginBottom: '14px', display: 'flex', alignItems: 'center', letterSpacing: '0.5px' }}>
+                <span style={{ width: '6px', height: '6px', background: '#00d9ff', borderRadius: '50%', marginRight: '8px', boxShadow: '0 0 8px #00d9ff' }}></span>
                 MISSION READINESS
             </div>
 
-            {/* Score */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                paddingBottom: '12px',
-                borderBottom: '1px solid rgba(100, 116, 139, 0.2)'
-            }}>
-                <div style={{
-                    fontSize: '13px',
-                    color: '#94a3b8'
-                }}>
-                    Score
-                </div>
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <div style={{
-                        fontSize: '28px',
-                        fontWeight: '600',
-                        color: 'white'
-                    }}>
-                        {data.mission_readiness_score}
+            {loading ? (
+                <div style={{ color: '#9ca3af', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>Loading...</div>
+            ) : !data ? (
+                <div style={{ color: '#9ca3af', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>Unavailable</div>
+            ) : (
+                <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid rgba(100, 116, 139, 0.2)' }}>
+                        <div style={{ fontSize: '13px', color: '#94a3b8' }}>Score</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ fontSize: '28px', fontWeight: '600', color: 'white' }}>{data.mission_readiness_score}</div>
+                            <div style={{ padding: '4px 8px', background: getTierColor(), borderRadius: '3px', fontSize: '10px', fontWeight: '700', color: 'white' }}>{data.tier}</div>
+                        </div>
                     </div>
-                    <div style={{
-                        padding: '4px 8px',
-                        background: getTierColor(),
-                        borderRadius: '3px',
-                        fontSize: '10px',
-                        fontWeight: '700',
-                        color: 'white'
-                    }}>
-                        {data.tier}
+
+                    <div style={{ marginBottom: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '13px', color: '#94a3b8' }}>Kp Index</span>
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: data.factors.space_weather.risk === 'LOW' ? '#22c55e' : data.factors.space_weather.risk === 'MODERATE' ? '#eab308' : '#ef4444' }}>
+                                {data.factors.space_weather.kp_index}
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '13px', color: '#94a3b8' }}>Cloud Cover</span>
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: data.factors.sky_conditions.risk === 'LOW' ? '#22c55e' : data.factors.sky_conditions.risk === 'MODERATE' ? '#eab308' : '#ef4444' }}>
+                                {data.factors.sky_conditions.cloud_cover_percent}%
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '13px', color: '#94a3b8' }}>Elevation</span>
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: data.factors.pass_geometry.risk === 'LOW' ? '#22c55e' : data.factors.pass_geometry.risk === 'MODERATE' ? '#eab308' : '#ef4444' }}>
+                                {data.factors.pass_geometry.max_elevation_deg.toFixed(1)}°
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Factors */}
-            <div style={{ marginBottom: '12px' }}>
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '8px'
-                }}>
-                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>Kp Index</span>
-                    <span style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: data.factors.space_weather.risk === 'LOW' ? '#22c55e' :
-                            data.factors.space_weather.risk === 'MODERATE' ? '#eab308' : '#ef4444'
-                    }}>
-                        {data.factors.space_weather.kp_index}
-                    </span>
-                </div>
-
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '8px'
-                }}>
-                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>Cloud Cover</span>
-                    <span style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: data.factors.sky_conditions.risk === 'LOW' ? '#22c55e' :
-                            data.factors.sky_conditions.risk === 'MODERATE' ? '#eab308' : '#ef4444'
-                    }}>
-                        {data.factors.sky_conditions.cloud_cover_percent}%
-                    </span>
-                </div>
-
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '8px'
-                }}>
-                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>Elevation</span>
-                    <span style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: data.factors.pass_geometry.risk === 'LOW' ? '#22c55e' :
-                            data.factors.pass_geometry.risk === 'MODERATE' ? '#eab308' : '#ef4444'
-                    }}>
-                        {data.factors.pass_geometry.max_elevation_deg.toFixed(1)}°
-                    </span>
-                </div>
-            </div>
-
-            {/* Next Pass */}
-            <div style={{
-                paddingTop: '12px',
-                borderTop: '1px solid rgba(100, 116, 139, 0.2)',
-                fontSize: '13px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <span style={{ color: '#94a3b8' }}>Next Pass</span>
-                <span style={{
-                    fontWeight: '600',
-                    color: 'white'
-                }}>
-                    {data.next_pass_time}
-                </span>
-            </div>
+                    <div style={{ paddingTop: '12px', borderTop: '1px solid rgba(100, 116, 139, 0.2)', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: '#94a3b8' }}>Next Pass</span>
+                        <span style={{ fontWeight: '600', color: 'white' }}>{data.next_pass_time}</span>
+                    </div>
+                </>
+            )}
         </div>
     );
 }
