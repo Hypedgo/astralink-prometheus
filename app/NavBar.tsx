@@ -25,8 +25,8 @@ export default function NavBar() {
                 <Image
                     src="/logo.png"
                     alt="AstraLink"
-                    width={160}
-                    height={44}
+                    width={600}
+                    height={170}
                     style={{ objectFit: 'contain', objectPosition: 'left center', width: '160px', height: '44px' }}
                 />
             </Link>
