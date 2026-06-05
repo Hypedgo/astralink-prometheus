@@ -21,13 +21,13 @@ export default function NavBar() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0 16px', zIndex: 2000
         }}>
-            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', width: '160px', flexShrink: 0 }}>
+            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', width: '220px', flexShrink: 0 }}>
                 <Image
                     src="/logo.png"
                     alt="AstraLink"
                     width={600}
                     height={170}
-                    style={{ objectFit: 'contain', objectPosition: 'left center', width: '160px', height: '44px' }}
+                    style={{ objectFit: 'contain', objectPosition: 'left center', width: '220px', height: '60px' }}
                 />
             </Link>
 
