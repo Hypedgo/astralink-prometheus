@@ -8,7 +8,7 @@ import MissionBrief from '../MissionBrief'
 import LocationSearch from '../LocationSearch'
 import LocationMarker from '../LocationMarker'
 import SystemStatus from '../SystemStatus'
-import MissionReadinessCard from '../MissionReadinessCard'
+
 import { useRef, useState, useEffect } from 'react'
 import AstraLinkCopilot from '../AstraLinkCopilot'
 import NavBar from '../NavBar'
@@ -128,7 +128,7 @@ export default function Home() {
       <NavBar />
       <MissionBrief location={location} />
       <SystemStatus />
-      <MissionReadinessCard latitude={location.latitude} longitude={location.longitude} />
+      
       <LocationSearch onLocationSelect={handleLocationSelect} />
       <AstraLinkCopilot latitude={location.latitude} longitude={location.longitude} locationName={location.displayName} />
       <Canvas camera={{ position: [0, 1, 6], fov: 45 }}>
