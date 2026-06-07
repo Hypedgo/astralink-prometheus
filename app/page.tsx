@@ -24,7 +24,8 @@ export default function LandingPage() {
     const videoOpacity = Math.max(0, 1 - scrollY / (vh * 0.5));
     const textOpacity = Math.max(0, 1 - scrollY / (vh * 0.25));
     const section2Opacity = Math.min(1, Math.max(0, (scrollY - vh * 0.4) / (vh * 0.3)));
-    const section3Opacity = Math.min(1, Math.max(0, (scrollY - vh * 1.4) / (vh * 0.3)));
+    const section2FadeOut = Math.max(0, 1 - (scrollY - vh * 1.2) / (vh * 0.3));
+    const section3Opacity = Math.min(1, Math.max(0, (scrollY - vh * 2.2) / (vh * 0.3)));
 
     return (
         <div style={{ background: '#000000' }}>
@@ -32,7 +33,6 @@ export default function LandingPage() {
             {/* SECTION 1 — Video hero */}
             <div style={{ height: '130vh', position: 'relative' }}>
 
-                {/* Fixed satellite video */}
                 <div style={{
                     position: 'fixed', top: 0, left: 0,
                     width: '100%', height: '100vh',
@@ -53,12 +53,10 @@ export default function LandingPage() {
                     }}></div>
                 </div>
 
-                {/* NavBar */}
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
                     <NavBar />
                 </div>
 
-                {/* Hero text */}
                 <div style={{
                     position: 'fixed',
                     bottom: '80px',
@@ -92,11 +90,10 @@ export default function LandingPage() {
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                opacity: section2Opacity,
+                opacity: Math.min(section2Opacity, section2FadeOut),
                 transition: 'opacity 0.1s linear',
                 overflow: 'hidden',
             }}>
-                {/* Left — Text */}
                 <div style={{
                     width: '50%',
                     padding: '100px 60px 100px 80px',
@@ -128,14 +125,11 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                {/* Right — Photo */}
                 <div style={{
                     width: '50%',
                     height: '100vh',
                     position: 'relative',
                     flexShrink: 0,
-                    opacity: section2Opacity,
-                    transition: 'opacity 0.3s linear',
                 }}>
                     <Image
                         src="/what-is-astralink.jpg"
@@ -145,6 +139,9 @@ export default function LandingPage() {
                     />
                 </div>
             </div>
+
+            {/* SPACER — black gap between sections */}
+            <div style={{ height: '80vh', background: '#000000', position: 'relative', zIndex: 20 }}></div>
 
             {/* SECTION 3 — The Goal */}
             <div style={{
@@ -159,7 +156,6 @@ export default function LandingPage() {
                 transition: 'opacity 0.1s linear',
                 overflow: 'hidden',
             }}>
-                {/* Left — Text */}
                 <div style={{
                     width: '50%',
                     padding: '100px 60px 100px 80px',
@@ -191,7 +187,6 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                {/* Right — Photo */}
                 <div style={{
                     width: '50%',
                     height: '100vh',
