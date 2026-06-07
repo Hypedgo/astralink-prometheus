@@ -196,7 +196,7 @@ export default function LandingPage() {
                     transition: 'opacity 0.3s linear',
                 }}>
                     <Image
-                        src="/learning-photo.jpg"
+                        src="/child-aerospace.jpg"
                         alt="The Goal"
                         fill
                         style={{ objectFit: 'cover' }}
