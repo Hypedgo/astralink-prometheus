@@ -22,12 +22,12 @@ export default function LandingPage() {
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
     const videoOpacity = Math.max(0, 1 - scrollY / (vh * 0.7));
     const textOpacity = Math.max(0, 1 - scrollY / (vh * 0.35));
-    const blackSectionOpacity = Math.min(1, Math.max(0, (scrollY - vh * 0.3) / (vh * 0.4)));
 
     return (
         <div style={{ background: '#000000' }}>
 
-            <div style={{ height: '200vh' }}>
+            {/* SECTION 1 — Video hero */}
+            <div style={{ height: '100vh', position: 'relative' }}>
 
                 {/* Fixed satellite video */}
                 <div style={{
@@ -55,7 +55,7 @@ export default function LandingPage() {
                     <NavBar />
                 </div>
 
-                {/* Text bottom left */}
+                {/* Hero text */}
                 <div style={{
                     position: 'fixed',
                     bottom: '80px',
@@ -78,17 +78,44 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                {/* Black section fades in on scroll */}
-                <div style={{
-                    position: 'fixed',
-                    top: 0, left: 0,
-                    width: '100%', height: '100vh',
-                    background: '#000000',
-                    zIndex: 10,
-                    opacity: blackSectionOpacity,
-                    pointerEvents: blackSectionOpacity > 0.1 ? 'auto' : 'none',
-                }}></div>
+            </div>
 
+            {/* SECTION 2 — What Is AstraLink */}
+            <div style={{
+                minHeight: '100vh',
+                background: '#000000',
+                position: 'relative',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '100px 60px',
+            }}>
+                <div style={{ maxWidth: '800px', textAlign: 'center' }}>
+                    <h1 style={{
+                        fontFamily: '"Roboto", sans-serif',
+                        fontSize: '64px',
+                        fontWeight: '700',
+                        color: '#ffffff',
+                        margin: '0 0 40px 0',
+                        lineHeight: '1.1',
+                        letterSpacing: '-1px',
+                    }}>
+                        What Is AstraLink?
+                    </h1>
+                    <p style={{
+                        fontFamily: 'Arial, sans-serif',
+                        fontSize: '20px',
+                        fontWeight: '300',
+                        color: 'rgba(255,255,255,0.85)',
+                        margin: 0,
+                        lineHeight: '1.8',
+                        letterSpacing: '0.3px',
+                    }}>
+                        AstraLink is an aerospace intelligence platform that combines real world space and earth data, AI, and visualization into one single mission support system. What would usually only be available to experts in aerospace or aviation is now available to you with a matter of a few clicks. Jeremiah 33:3
+                    </p>
+                </div>
             </div>
 
         </div>
