@@ -20,14 +20,15 @@ export default function LandingPage() {
     }, []);
 
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const videoOpacity = Math.max(0, 1 - scrollY / (vh * 0.7));
-    const textOpacity = Math.max(0, 1 - scrollY / (vh * 0.35));
+    const videoOpacity = Math.max(0, 1 - scrollY / (vh * 0.5));
+    const textOpacity = Math.max(0, 1 - scrollY / (vh * 0.25));
+    const section2Opacity = Math.min(1, Math.max(0, (scrollY - vh * 0.4) / (vh * 0.3)));
 
     return (
         <div style={{ background: '#000000' }}>
 
-            {/* SECTION 1 — Video hero, extra tall for smooth scroll */}
-            <div style={{ height: '120vh', position: 'relative' }}>
+            {/* SECTION 1 — Video hero */}
+            <div style={{ height: '130vh', position: 'relative' }}>
 
                 {/* Fixed satellite video */}
                 <div style={{
@@ -80,10 +81,10 @@ export default function LandingPage() {
 
             </div>
 
-            {/* SECTION 2 — What Is AstraLink, fades in smoothly */}
+            {/* SECTION 2 — What Is AstraLink */}
             <div style={{
                 minHeight: '100vh',
-                background: 'linear-gradient(to bottom, #000000 0%, #000000 100%)',
+                background: '#000000',
                 position: 'relative',
                 zIndex: 20,
                 display: 'flex',
@@ -91,6 +92,8 @@ export default function LandingPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '100px 60px',
+                opacity: section2Opacity,
+                transition: 'opacity 0.1s linear',
             }}>
                 <div style={{ maxWidth: '800px', textAlign: 'center' }}>
                     <h1 style={{
