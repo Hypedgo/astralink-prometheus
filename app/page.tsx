@@ -1,6 +1,7 @@
 'use client';
 
 import NavBar from './NavBar'
+import Image from 'next/image'
 import { useRef, useEffect, useState } from 'react';
 
 export default function LandingPage() {
@@ -88,20 +89,26 @@ export default function LandingPage() {
                 position: 'relative',
                 zIndex: 20,
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'center',
-                padding: '100px 60px',
                 opacity: section2Opacity,
                 transition: 'opacity 0.1s linear',
+                overflow: 'hidden',
             }}>
-                <div style={{ maxWidth: '800px', textAlign: 'center' }}>
+                {/* Left — Text */}
+                <div style={{
+                    width: '50%',
+                    padding: '100px 60px 100px 80px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                }}>
                     <h1 style={{
                         fontFamily: '"Roboto", sans-serif',
-                        fontSize: '64px',
+                        fontSize: '56px',
                         fontWeight: '700',
                         color: '#ffffff',
-                        margin: '0 0 40px 0',
+                        margin: '0 0 32px 0',
                         lineHeight: '1.1',
                         letterSpacing: '-1px',
                     }}>
@@ -109,7 +116,7 @@ export default function LandingPage() {
                     </h1>
                     <p style={{
                         fontFamily: 'Arial, sans-serif',
-                        fontSize: '20px',
+                        fontSize: '18px',
                         fontWeight: '300',
                         color: 'rgba(255,255,255,0.85)',
                         margin: 0,
@@ -119,6 +126,22 @@ export default function LandingPage() {
                         AstraLink is an aerospace intelligence platform that combines real world space and earth data, AI, and visualization into one single mission support system. What would usually only be available to experts in aerospace or aviation is now available to you with a matter of a few clicks. Jeremiah 33:3
                     </p>
                 </div>
+
+                {/* Right — Photo */}
+                <div style={{
+                    width: '50%',
+                    height: '100vh',
+                    position: 'relative',
+                    flexShrink: 0,
+                }}>
+                    <Image
+                        src="/what-is-astralink.jpg"
+                        alt="What Is AstraLink"
+                        fill
+                        style={{ objectFit: 'cover' }}
+                    />
+                </div>
+
             </div>
 
         </div>
