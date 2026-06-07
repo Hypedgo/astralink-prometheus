@@ -24,6 +24,7 @@ export default function LandingPage() {
     const videoOpacity = Math.max(0, 1 - scrollY / (vh * 0.5));
     const textOpacity = Math.max(0, 1 - scrollY / (vh * 0.25));
     const section2Opacity = Math.min(1, Math.max(0, (scrollY - vh * 0.4) / (vh * 0.3)));
+    const section3Opacity = Math.min(1, Math.max(0, (scrollY - vh * 1.4) / (vh * 0.3)));
 
     return (
         <div style={{ background: '#000000' }}>
@@ -143,7 +144,69 @@ export default function LandingPage() {
                         style={{ objectFit: 'cover' }}
                     />
                 </div>
+            </div>
 
+            {/* SECTION 3 — The Goal */}
+            <div style={{
+                minHeight: '100vh',
+                background: '#000000',
+                position: 'relative',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                opacity: section3Opacity,
+                transition: 'opacity 0.1s linear',
+                overflow: 'hidden',
+            }}>
+                {/* Left — Text */}
+                <div style={{
+                    width: '50%',
+                    padding: '100px 60px 100px 80px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                }}>
+                    <h1 style={{
+                        fontFamily: '"Roboto", sans-serif',
+                        fontSize: '56px',
+                        fontWeight: '700',
+                        color: '#ffffff',
+                        margin: '0 0 32px 0',
+                        lineHeight: '1.1',
+                        letterSpacing: '-1px',
+                    }}>
+                        The Goal?
+                    </h1>
+                    <p style={{
+                        fontFamily: 'Arial, sans-serif',
+                        fontSize: '18px',
+                        fontWeight: '300',
+                        color: 'rgba(255,255,255,0.85)',
+                        margin: 0,
+                        lineHeight: '1.8',
+                        letterSpacing: '0.3px',
+                    }}>
+                        The goal is to provide an interactive mission control system for all. I don't want to gatekeep access or knowledge to only experts but make it available for everyone. The site started off as just an idea of trying to see if I can make a mission brief system for pilots to see if conditions are good enough to fly through. Then the site just took on a life of its own. I will still continue to add and refine things every chance I get. Proverbs 9:10
+                    </p>
+                </div>
+
+                {/* Right — Photo */}
+                <div style={{
+                    width: '50%',
+                    height: '100vh',
+                    position: 'relative',
+                    flexShrink: 0,
+                    opacity: section3Opacity,
+                    transition: 'opacity 0.3s linear',
+                }}>
+                    <Image
+                        src="/learning-photo.jpg"
+                        alt="The Goal"
+                        fill
+                        style={{ objectFit: 'cover' }}
+                    />
+                </div>
             </div>
 
         </div>
