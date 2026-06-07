@@ -25,7 +25,7 @@ export default function LandingPage() {
     const textOpacity = Math.max(0, 1 - scrollY / (vh * 0.25));
     const section2Opacity = Math.min(1, Math.max(0, (scrollY - vh * 0.4) / (vh * 0.3)));
     const section2FadeOut = Math.max(0, 1 - (scrollY - vh * 1.2) / (vh * 0.3));
-    const section3Opacity = Math.min(1, Math.max(0, (scrollY - vh * 2.2) / (vh * 0.3)));
+    const section3Opacity = Math.min(1, Math.max(0, (scrollY - vh * 1.8) / (vh * 0.3)));
 
     return (
         <div style={{ background: '#000000' }}>
@@ -140,8 +140,8 @@ export default function LandingPage() {
                 </div>
             </div>
 
-            {/* SPACER — black gap between sections */}
-            <div style={{ height: '80vh', background: '#000000', position: 'relative', zIndex: 20 }}></div>
+            {/* SPACER */}
+            <div style={{ height: '40vh', background: '#000000', position: 'relative', zIndex: 20 }}></div>
 
             {/* SECTION 3 — The Goal */}
             <div style={{
