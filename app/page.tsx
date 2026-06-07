@@ -133,6 +133,8 @@ export default function LandingPage() {
                     height: '100vh',
                     position: 'relative',
                     flexShrink: 0,
+                    opacity: section2Opacity,
+                    transition: 'opacity 0.3s linear',
                 }}>
                     <Image
                         src="/what-is-astralink.jpg"
