@@ -1,7 +1,7 @@
 'use client';
 
 import NavBar from './NavBar'
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 export default function LandingPage() {
     const [scrollY, setScrollY] = useState(0);
@@ -26,8 +26,8 @@ export default function LandingPage() {
     return (
         <div style={{ background: '#000000' }}>
 
-            {/* SECTION 1 — Video hero */}
-            <div style={{ height: '100vh', position: 'relative' }}>
+            {/* SECTION 1 — Video hero, extra tall for smooth scroll */}
+            <div style={{ height: '160vh', position: 'relative' }}>
 
                 {/* Fixed satellite video */}
                 <div style={{
@@ -80,10 +80,10 @@ export default function LandingPage() {
 
             </div>
 
-            {/* SECTION 2 — What Is AstraLink */}
+            {/* SECTION 2 — What Is AstraLink, fades in smoothly */}
             <div style={{
                 minHeight: '100vh',
-                background: '#000000',
+                background: 'linear-gradient(to bottom, #000000 0%, #000000 100%)',
                 position: 'relative',
                 zIndex: 20,
                 display: 'flex',
