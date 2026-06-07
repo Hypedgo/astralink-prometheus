@@ -27,7 +27,7 @@ export default function LandingPage() {
         <div style={{ background: '#000000' }}>
 
             {/* SECTION 1 — Video hero, extra tall for smooth scroll */}
-            <div style={{ height: '160vh', position: 'relative' }}>
+            <div style={{ height: '120vh', position: 'relative' }}>
 
                 {/* Fixed satellite video */}
                 <div style={{
