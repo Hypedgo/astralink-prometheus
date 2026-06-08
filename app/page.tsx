@@ -8,14 +8,14 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
-function SpinningGlobe({ rising }: { rising: boolean }) {
+function SpinningGlobe() {
     const meshRef = useRef<THREE.Mesh>(null);
     const texture = useLoader(THREE.TextureLoader, 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
     useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.0008; });
-    return <mesh ref={meshRef} position={[0, rising ? -4 : 0, 0]}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial map={texture} /></mesh>;
+    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial map={texture} /></mesh>;
 }
 
-function SpinningSatellite({ rising }: { rising: boolean }) {
+function SpinningSatellite() {
     const groupRef = useRef<THREE.Group>(null);
     useFrame(({ clock }) => {
         if (groupRef.current) {
@@ -24,7 +24,7 @@ function SpinningSatellite({ rising }: { rising: boolean }) {
         }
     });
     return (
-        <group ref={groupRef} position={[0, rising ? -4 : 0, 0]}>
+        <group ref={groupRef}>
             <mesh><boxGeometry args={[0.5, 0.12, 0.12]} /><meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} /></mesh>
             <mesh position={[0, 0.08, 0]}><boxGeometry args={[2.0, 0.6, 0.03]} /><meshStandardMaterial color="#1a3d6b" metalness={0.6} /></mesh>
             <mesh position={[0, -0.12, 0]}><boxGeometry args={[0.2, 0.1, 0.2]} /><meshStandardMaterial color="#cccccc" metalness={0.9} /></mesh>
@@ -32,31 +32,30 @@ function SpinningSatellite({ rising }: { rising: boolean }) {
     );
 }
 
-function SpinningMoon({ rising }: { rising: boolean }) {
+function SpinningMoon() {
     const meshRef = useRef<THREE.Mesh>(null);
     useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.0008; });
-    return <mesh ref={meshRef} position={[0, rising ? -4 : 0, 0]}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#aaaaaa" roughness={0.95} /></mesh>;
+    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#aaaaaa" roughness={0.95} /></mesh>;
 }
 
-function SpinningPlanet({ rising }: { rising: boolean }) {
+function SpinningPlanet() {
     const meshRef = useRef<THREE.Mesh>(null);
     useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.001; });
-    return <mesh ref={meshRef} position={[0, rising ? -4 : 0, 0]}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.3} /></mesh>;
+    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.3} /></mesh>;
 }
 
-function Scene({ type, rising }: { type: string, rising: boolean }) {
+function Scene({ type }: { type: string }) {
     return (
         <Canvas camera={{ position: [0, 0, 6], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
             <ambientLight intensity={0.4} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
-            <pointLight position={[0, -2, 2]} intensity={2} color="#00ff88" />
-            <pointLight position={[0, 0, 6]} intensity={0.4} color="#00ff88" />
+            <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
             <Suspense fallback={null}>
-                {type === 'globe' && <SpinningGlobe rising={rising} />}
-                {type === 'satellite' && <SpinningSatellite rising={rising} />}
-                {type === 'moon' && <SpinningMoon rising={rising} />}
-                {type === 'plan' && <SpinningPlanet rising={rising} />}
+                {type === 'globe' && <SpinningGlobe />}
+                {type === 'satellite' && <SpinningSatellite />}
+                {type === 'moon' && <SpinningMoon />}
+                {type === 'plan' && <SpinningPlanet />}
             </Suspense>
         </Canvas>
     );
@@ -69,12 +68,33 @@ const destinations = [
     { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan your observation sessions. Get optimal viewing windows, weather forecasts, and mission readiness scores for upcoming ISS passes.', type: 'plan', href: '/planning' },
 ];
 
+function PulsingRing({ size, delay }: { size: number, delay: number }) {
+    const [scale, setScale] = useState(1);
+    const [opacity, setOpacity] = useState(0.4);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setScale(s => s >= 1.8 ? 1 : s + 0.01);
+            setOpacity(o => o <= 0 ? 0.4 : o - 0.005);
+        }, 30);
+        return () => clearInterval(interval);
+    }, []);
+    return (
+        <div style={{
+            position: 'absolute', borderRadius: '50%',
+            width: size, height: size,
+            border: '1px solid rgba(0,255,136,0.3)',
+            transform: `scale(${scale})`,
+            opacity,
+            pointerEvents: 'none',
+            transition: 'none',
+        }} />
+    );
+}
+
 export default function LandingPage() {
     const [scrollY, setScrollY] = useState(0);
     const [activeIndex, setActiveIndex] = useState(0);
-    const [rising, setRising] = useState(false);
     const [glitching, setGlitching] = useState(false);
-    const [beamIntensity, setBeamIntensity] = useState(0);
     const heroVideoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -87,26 +107,9 @@ export default function LandingPage() {
         if (heroVideoRef.current) heroVideoRef.current.play().catch(() => { });
     }, []);
 
-    // Trigger rise animation on mount
-    useEffect(() => {
-        setRising(true);
-        setBeamIntensity(1);
-        setTimeout(() => setRising(false), 800);
-        setTimeout(() => setBeamIntensity(0.4), 800);
-    }, []);
-
     const changeDestination = (newIndex: number) => {
         setGlitching(true);
-        setRising(true);
-        setBeamIntensity(1);
-        setTimeout(() => {
-            setActiveIndex(newIndex);
-            setGlitching(false);
-        }, 120);
-        setTimeout(() => {
-            setRising(false);
-            setBeamIntensity(0.4);
-        }, 900);
+        setTimeout(() => { setActiveIndex(newIndex); setGlitching(false); }, 150);
     };
 
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
@@ -204,13 +207,16 @@ export default function LandingPage() {
 
                     {/* LEFT PANEL */}
                     <div style={{ width: '45%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '100px 40px 80px 80px', position: 'relative' }}>
+
                         {/* Corner TL */}
                         <div style={{ position: 'absolute', top: '76px', left: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
                         <div style={{ position: 'absolute', top: '82px', left: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%' }}></div>
+
                         {/* Corner BL */}
                         <div style={{ position: 'absolute', bottom: '56px', left: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
                         <div style={{ position: 'absolute', bottom: '62px', left: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%' }}></div>
 
+                        {/* Glitch effect on switch */}
                         <div style={{ opacity: glitching ? 0 : 1, transition: 'opacity 0.1s' }}>
                             <div style={{ fontSize: '10px', letterSpacing: '5px', color: '#00ff88', marginBottom: '4px', fontFamily: 'monospace' }}>{dest.tag}</div>
                             <div style={{ fontSize: '10px', letterSpacing: '3px', color: 'rgba(255,255,255,0.25)', marginBottom: '20px', fontFamily: 'monospace' }}>
@@ -229,64 +235,34 @@ export default function LandingPage() {
                     </div>
 
                     {/* RIGHT PANEL */}
-                    <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
                         {/* Corner TR */}
                         <div style={{ position: 'absolute', top: '76px', right: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', top: '82px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+
                         {/* Corner BR */}
                         <div style={{ position: 'absolute', bottom: '56px', right: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', bottom: '62px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
 
-                        {/* Holographic beam from bottom */}
-                        <div style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '200px',
-                            height: '60%',
-                            background: `linear-gradient(to top, rgba(0,255,136,${beamIntensity * 0.5}) 0%, rgba(0,255,136,${beamIntensity * 0.15}) 40%, transparent 100%)`,
-                            clipPath: 'polygon(35% 100%, 65% 100%, 100% 0%, 0% 0%)',
-                            transition: 'opacity 0.4s',
-                            pointerEvents: 'none',
-                            zIndex: 6,
-                            animation: glitching ? 'beamGlitch 0.15s steps(2) infinite' : 'none',
-                        }}></div>
-
-                        {/* Beam base glow */}
-                        <div style={{
-                            position: 'absolute',
-                            bottom: '0px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '300px',
-                            height: '30px',
-                            background: `radial-gradient(ellipse, rgba(0,255,136,${beamIntensity * 0.8}) 0%, transparent 70%)`,
-                            pointerEvents: 'none',
-                            zIndex: 6,
-                            transition: 'opacity 0.3s',
-                            filter: 'blur(4px)',
-                        }}></div>
-
-                        {/* Crosshair lines */}
-                        <div style={{ position: 'absolute', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(to right, transparent, rgba(0,255,136,0.12), transparent)', pointerEvents: 'none', zIndex: 2 }}></div>
-                        <div style={{ position: 'absolute', left: '50%', top: '10%', bottom: '10%', width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(0,255,136,0.12), transparent)', pointerEvents: 'none', zIndex: 2 }}></div>
-
-                        {/* Ambient glow */}
-                        <div style={{ position: 'absolute', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', zIndex: 2 }}></div>
-
-                        {/* 3D Scene with rise + glitch */}
-                        <div style={{
-                            width: '100%',
-                            height: '100%',
-                            transform: rising ? 'translateY(30px)' : 'translateY(0px)',
-                            opacity: glitching ? 0.2 : 1,
-                            transition: rising ? 'transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.1s' : 'opacity 0.1s',
-                            filter: glitching ? 'hue-rotate(90deg) brightness(2)' : 'none',
-                            zIndex: 3,
-                        }}>
-                            <Scene type={dest.type} rising={false} />
+                        {/* Pulsing rings behind globe */}
+                        <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <PulsingRing size={320} delay={0} />
+                            <PulsingRing size={280} delay={500} />
                         </div>
+
+                        {/* Horizontal crosshair lines */}
+                        <div style={{ position: 'absolute', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(to right, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', left: '50%', top: '10%', bottom: '10%', width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
+
+                        {/* Glow */}
+                        <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+
+                        {/* 3D Scene */}
+                        <div style={{ width: '100%', height: '100%', opacity: glitching ? 0.3 : 1, transition: 'opacity 0.1s' }}>
+                            <Scene type={dest.type} />
+                        </div>
+
                     </div>
                 </div>
 
@@ -298,15 +274,11 @@ export default function LandingPage() {
                         </button>
                     ))}
                 </div>
+
             </div>
 
             <style jsx>{`
-                @keyframes beamGlitch {
-                    0% { transform: translateX(-50%) scaleX(1); opacity: 1; }
-                    33% { transform: translateX(-48%) scaleX(1.05); opacity: 0.6; }
-                    66% { transform: translateX(-52%) scaleX(0.95); opacity: 0.8; }
-                    100% { transform: translateX(-50%) scaleX(1); opacity: 1; }
-                }
+                @keyframes flicker { 0%, 100% { opacity: 1; } 92% { opacity: 1; } 93% { opacity: 0.4; } 94% { opacity: 1; } 96% { opacity: 0.6; } 97% { opacity: 1; } }
             `}</style>
 
         </div>
