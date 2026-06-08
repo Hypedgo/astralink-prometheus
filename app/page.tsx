@@ -12,12 +12,7 @@ function SpinningGlobe() {
     const meshRef = useRef<THREE.Mesh>(null);
     const texture = useLoader(THREE.TextureLoader, 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
     useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.002; });
-    return (
-        <mesh ref={meshRef}>
-            <sphereGeometry args={[2.2, 64, 64]} />
-            <meshStandardMaterial map={texture} />
-        </mesh>
-    );
+    return <mesh ref={meshRef}><sphereGeometry args={[2.8, 64, 64]} /><meshStandardMaterial map={texture} /></mesh>;
 }
 
 function SpinningSatellite() {
@@ -25,14 +20,14 @@ function SpinningSatellite() {
     useFrame(({ clock }) => {
         if (groupRef.current) {
             groupRef.current.rotation.y += 0.004;
-            groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.5) * 0.2;
+            groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.5) * 0.3;
         }
     });
     return (
         <group ref={groupRef}>
-            <mesh><boxGeometry args={[0.5, 0.12, 0.12]} /><meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} /></mesh>
-            <mesh position={[0, 0.08, 0]}><boxGeometry args={[2.0, 0.6, 0.03]} /><meshStandardMaterial color="#1a3d6b" metalness={0.6} /></mesh>
-            <mesh position={[0, -0.1, 0]}><boxGeometry args={[0.2, 0.1, 0.2]} /><meshStandardMaterial color="#cccccc" metalness={0.9} /></mesh>
+            <mesh><boxGeometry args={[0.6, 0.15, 0.15]} /><meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} /></mesh>
+            <mesh position={[0, 0.1, 0]}><boxGeometry args={[2.4, 0.7, 0.04]} /><meshStandardMaterial color="#1a3d6b" metalness={0.6} /></mesh>
+            <mesh position={[0, -0.15, 0]}><boxGeometry args={[0.25, 0.12, 0.25]} /><meshStandardMaterial color="#cccccc" metalness={0.9} /></mesh>
         </group>
     );
 }
@@ -40,31 +35,22 @@ function SpinningSatellite() {
 function SpinningMoon() {
     const meshRef = useRef<THREE.Mesh>(null);
     useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.002; });
-    return (
-        <mesh ref={meshRef}>
-            <sphereGeometry args={[2.2, 64, 64]} />
-            <meshStandardMaterial color="#999999" roughness={0.95} />
-        </mesh>
-    );
+    return <mesh ref={meshRef}><sphereGeometry args={[2.8, 64, 64]} /><meshStandardMaterial color="#aaaaaa" roughness={0.95} /></mesh>;
 }
 
 function SpinningPlanet() {
     const meshRef = useRef<THREE.Mesh>(null);
     useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.003; });
-    return (
-        <mesh ref={meshRef}>
-            <sphereGeometry args={[2.2, 64, 64]} />
-            <meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.2} />
-        </mesh>
-    );
+    return <mesh ref={meshRef}><sphereGeometry args={[2.8, 64, 64]} /><meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.3} /></mesh>;
 }
 
 function Scene({ type }: { type: string }) {
     return (
-        <Canvas camera={{ position: [0, 0, 5.5], fov: 45 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
-            <ambientLight intensity={0.6} />
+        <Canvas camera={{ position: [0, 0, 6.5], fov: 50 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+            <ambientLight intensity={0.5} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
-            <directionalLight position={[-3, -2, -3]} intensity={0.4} color="#8888ff" />
+            <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
+            <pointLight position={[0, 0, 8]} intensity={0.5} color="#00ff88" />
             <Suspense fallback={null}>
                 {type === 'globe' && <SpinningGlobe />}
                 {type === 'satellite' && <SpinningSatellite />}
@@ -160,98 +146,94 @@ export default function LandingPage() {
             <div style={{ height: '40vh', background: '#000000', position: 'relative', zIndex: 20 }}></div>
 
             {/* SECTION 4 — Choose Your Destination */}
-            <div style={{ minHeight: '100vh', background: '#000000', position: 'relative', zIndex: 20, opacity: section4Opacity, transition: 'opacity 0.1s linear' }}>
+            <div style={{ height: '100vh', background: '#000000', position: 'relative', zIndex: 20, opacity: section4Opacity, transition: 'opacity 0.1s linear', overflow: 'hidden' }}>
 
-                {/* Scanline overlay for video game feel */}
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.015) 2px, rgba(0,255,136,0.015) 4px)', pointerEvents: 'none', zIndex: 1 }}></div>
+                {/* Subtle scanlines */}
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,136,0.012) 3px, rgba(0,255,136,0.012) 4px)', pointerEvents: 'none', zIndex: 1 }}></div>
 
-                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '40px' }}>
+                {/* Title top center */}
+                <div style={{ position: 'absolute', top: '32px', left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
+                    <h1 style={{ fontFamily: '"Audiowide", cursive', fontSize: '32px', color: '#ffffff', margin: 0, letterSpacing: '4px', textTransform: 'uppercase' }}>
+                        Choose Your Destination
+                    </h1>
+                </div>
 
-                    {/* Header */}
-                    <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-                        <div style={{ fontSize: '11px', letterSpacing: '6px', color: '#00ff88', fontFamily: 'monospace', marginBottom: '12px' }}>SELECT MISSION MODULE</div>
-                        <h1 style={{ fontFamily: '"Audiowide", cursive', fontSize: '38px', color: '#ffffff', margin: 0, letterSpacing: '3px' }}>
-                            CHOOSE YOUR DESTINATION
-                        </h1>
-                    </div>
+                {/* Left arrow — far left edge */}
+                <button onClick={() => setActiveIndex((activeIndex - 1 + destinations.length) % destinations.length)}
+                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#ffffff', fontSize: '40px', cursor: 'pointer', zIndex: 20, opacity: 0.6, transition: 'opacity 0.2s', fontFamily: 'monospace', padding: '10px' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}>
+                    ‹
+                </button>
 
-                    {/* Main area */}
-                    <div style={{ width: '100%', maxWidth: '1300px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {/* Right arrow — far right edge */}
+                <button onClick={() => setActiveIndex((activeIndex + 1) % destinations.length)}
+                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#ffffff', fontSize: '40px', cursor: 'pointer', zIndex: 20, opacity: 0.6, transition: 'opacity 0.2s', fontFamily: 'monospace', padding: '10px' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}>
+                    ›
+                </button>
 
-                        {/* Left Arrow */}
-                        <button onClick={() => setActiveIndex((activeIndex - 1 + destinations.length) % destinations.length)}
-                            style={{ background: 'none', border: '1px solid rgba(0,255,136,0.3)', borderRadius: '2px', width: '48px', height: '48px', color: '#00ff88', fontSize: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s', fontFamily: 'monospace' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,255,136,0.1)'; e.currentTarget.style.borderColor = '#00ff88'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(0,255,136,0.3)'; }}>
-                            ‹
-                        </button>
+                {/* Full bleed layout */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'row', zIndex: 5 }}>
 
-                        {/* Card */}
-                        <div style={{ flex: 1, position: 'relative', height: '75vh', display: 'flex', flexDirection: 'row', background: 'rgba(0,10,5,0.8)', overflow: 'hidden' }}>
+                    {/* Left — text panel */}
+                    <div style={{ width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '100px 40px 60px 80px' }}>
 
-                            {/* Corner brackets */}
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '50px', height: '50px', borderTop: '2px solid #00ff88', borderLeft: '2px solid #00ff88', zIndex: 10 }}></div>
-                            <div style={{ position: 'absolute', top: 0, right: 0, width: '50px', height: '50px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '50px', height: '50px', borderBottom: '2px solid #00ff88', borderLeft: '2px solid #00ff88', zIndex: 10 }}></div>
-                            <div style={{ position: 'absolute', bottom: 0, right: 0, width: '50px', height: '50px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
+                        {/* Corner bracket top left */}
+                        <div style={{ position: 'absolute', top: '80px', left: '60px', width: '40px', height: '40px', borderTop: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
+                        <div style={{ position: 'absolute', top: '86px', left: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%' }}></div>
 
-                            {/* Corner dots */}
-                            <div style={{ position: 'absolute', top: '6px', left: '6px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
-                            <div style={{ position: 'absolute', top: '6px', right: '6px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
-                            <div style={{ position: 'absolute', bottom: '6px', left: '6px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
-                            <div style={{ position: 'absolute', bottom: '6px', right: '6px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+                        {/* Corner bracket bottom left */}
+                        <div style={{ position: 'absolute', bottom: '60px', left: '60px', width: '40px', height: '40px', borderBottom: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
+                        <div style={{ position: 'absolute', bottom: '66px', left: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%' }}></div>
 
-                            {/* Left — Text */}
-                            <div style={{ width: '42%', padding: '60px 40px 60px 60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', borderRight: '1px solid rgba(0,255,136,0.1)' }}>
-                                <div style={{ fontSize: '10px', letterSpacing: '5px', color: '#00ff88', marginBottom: '8px', fontFamily: 'monospace', opacity: 0.8 }}>
-                                    {dest.tag}
-                                </div>
-                                <div style={{ fontSize: '10px', letterSpacing: '3px', color: 'rgba(255,255,255,0.3)', marginBottom: '24px', fontFamily: 'monospace' }}>
-                                    MODULE {String(activeIndex + 1).padStart(2, '0')} OF {String(destinations.length).padStart(2, '0')}
-                                </div>
-                                <h2 style={{ fontFamily: '"Roboto", sans-serif', fontSize: '44px', fontWeight: '700', color: '#ffffff', margin: '0 0 28px 0', lineHeight: '1.1', letterSpacing: '-1px' }}>
-                                    {dest.name}
-                                </h2>
-                                <div style={{ width: '40px', height: '2px', background: '#00ff88', marginBottom: '28px' }}></div>
-                                <p style={{ fontFamily: 'Arial, sans-serif', fontSize: '16px', color: 'rgba(255,255,255,0.65)', lineHeight: '1.8', margin: '0 0 48px 0' }}>
-                                    {dest.description}
-                                </p>
-                                <Link href={dest.href} style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '14px 28px', background: 'transparent', border: '1px solid #00ff88', color: '#00ff88', fontSize: '12px', fontWeight: '600', letterSpacing: '4px', textTransform: 'uppercase', textDecoration: 'none', width: 'fit-content', transition: 'all 0.2s', fontFamily: 'monospace' }}
-                                    onMouseEnter={(e) => { e.currentTarget.style.background = '#00ff88'; e.currentTarget.style.color = '#000000'; }}
-                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00ff88'; }}>
-                                    INITIATE LAUNCH <span style={{ fontSize: '16px' }}>→</span>
-                                </Link>
-                            </div>
+                        <div style={{ fontSize: '10px', letterSpacing: '5px', color: '#00ff88', marginBottom: '6px', fontFamily: 'monospace', fontWeight: 600 }}>{dest.tag}</div>
+                        <div style={{ fontSize: '10px', letterSpacing: '3px', color: 'rgba(255,255,255,0.3)', marginBottom: '20px', fontFamily: 'monospace' }}>MODULE {String(activeIndex + 1).padStart(2, '0')} OF {String(destinations.length).padStart(2, '0')}</div>
 
-                            {/* Right — 3D Visual */}
-                            <div style={{ width: '58%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {/* Glow behind globe */}
-                                <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0,255,136,0.08) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
-                                <Scene type={dest.type} />
-                            </div>
+                        <h2 style={{ fontFamily: '"Roboto", sans-serif', fontSize: '52px', fontWeight: '700', color: '#ffffff', margin: '0 0 20px 0', lineHeight: '1.1', letterSpacing: '-1px' }}>{dest.name}</h2>
 
-                        </div>
+                        <div style={{ width: '40px', height: '2px', background: '#00ff88', marginBottom: '24px' }}></div>
 
-                        {/* Right Arrow */}
-                        <button onClick={() => setActiveIndex((activeIndex + 1) % destinations.length)}
-                            style={{ background: 'none', border: '1px solid rgba(0,255,136,0.3)', borderRadius: '2px', width: '48px', height: '48px', color: '#00ff88', fontSize: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s', fontFamily: 'monospace' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,255,136,0.1)'; e.currentTarget.style.borderColor = '#00ff88'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(0,255,136,0.3)'; }}>
-                            ›
-                        </button>
+                        <p style={{ fontFamily: 'Arial, sans-serif', fontSize: '16px', color: 'rgba(255,255,255,0.65)', lineHeight: '1.8', margin: '0 0 40px 0', maxWidth: '420px' }}>{dest.description}</p>
+
+                        <Link href={dest.href}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '14px 28px', background: 'transparent', border: '1px solid #00ff88', color: '#00ff88', fontSize: '12px', fontWeight: '600', letterSpacing: '4px', textTransform: 'uppercase', textDecoration: 'none', width: 'fit-content', transition: 'all 0.2s', fontFamily: 'monospace' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#00ff88'; e.currentTarget.style.color = '#000000'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00ff88'; }}>
+                            INITIATE LAUNCH <span style={{ fontSize: '16px' }}>→</span>
+                        </Link>
 
                     </div>
 
-                    {/* Dots */}
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '28px', alignItems: 'center' }}>
-                        {destinations.map((_, i) => (
-                            <button key={i} onClick={() => setActiveIndex(i)}
-                                style={{ width: i === activeIndex ? '28px' : '8px', height: '4px', borderRadius: '2px', background: i === activeIndex ? '#00ff88' : 'rgba(0,255,136,0.2)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }}>
-                            </button>
-                        ))}
+                    {/* Right — 3D visual full height */}
+                    <div style={{ width: '56%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+                        {/* Corner bracket top right */}
+                        <div style={{ position: 'absolute', top: '80px', right: '60px', width: '40px', height: '40px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
+                        <div style={{ position: 'absolute', top: '86px', right: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+
+                        {/* Corner bracket bottom right */}
+                        <div style={{ position: 'absolute', bottom: '60px', right: '60px', width: '40px', height: '40px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
+                        <div style={{ position: 'absolute', bottom: '66px', right: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+
+                        {/* Glow */}
+                        <div style={{ position: 'absolute', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+
+                        <Scene type={dest.type} />
                     </div>
 
                 </div>
+
+                {/* Dots bottom center */}
+                <div style={{ position: 'absolute', bottom: '24px', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '12px', zIndex: 10 }}>
+                    {destinations.map((_, i) => (
+                        <button key={i} onClick={() => setActiveIndex(i)}
+                            style={{ width: i === activeIndex ? '28px' : '8px', height: '4px', borderRadius: '2px', background: i === activeIndex ? '#00ff88' : 'rgba(0,255,136,0.2)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }}>
+                        </button>
+                    ))}
+                </div>
+
             </div>
 
         </div>
