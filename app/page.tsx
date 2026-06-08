@@ -11,46 +11,46 @@ import * as THREE from 'three';
 function SpinningGlobe() {
     const meshRef = useRef<THREE.Mesh>(null);
     const texture = useLoader(THREE.TextureLoader, 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
-    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.002; });
-    return <mesh ref={meshRef}><sphereGeometry args={[2.8, 64, 64]} /><meshStandardMaterial map={texture} /></mesh>;
+    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.0008; });
+    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial map={texture} /></mesh>;
 }
 
 function SpinningSatellite() {
     const groupRef = useRef<THREE.Group>(null);
     useFrame(({ clock }) => {
         if (groupRef.current) {
-            groupRef.current.rotation.y += 0.004;
-            groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.5) * 0.3;
+            groupRef.current.rotation.y += 0.002;
+            groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.2;
         }
     });
     return (
         <group ref={groupRef}>
-            <mesh><boxGeometry args={[0.6, 0.15, 0.15]} /><meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} /></mesh>
-            <mesh position={[0, 0.1, 0]}><boxGeometry args={[2.4, 0.7, 0.04]} /><meshStandardMaterial color="#1a3d6b" metalness={0.6} /></mesh>
-            <mesh position={[0, -0.15, 0]}><boxGeometry args={[0.25, 0.12, 0.25]} /><meshStandardMaterial color="#cccccc" metalness={0.9} /></mesh>
+            <mesh><boxGeometry args={[0.5, 0.12, 0.12]} /><meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} /></mesh>
+            <mesh position={[0, 0.08, 0]}><boxGeometry args={[2.0, 0.6, 0.03]} /><meshStandardMaterial color="#1a3d6b" metalness={0.6} /></mesh>
+            <mesh position={[0, -0.12, 0]}><boxGeometry args={[0.2, 0.1, 0.2]} /><meshStandardMaterial color="#cccccc" metalness={0.9} /></mesh>
         </group>
     );
 }
 
 function SpinningMoon() {
     const meshRef = useRef<THREE.Mesh>(null);
-    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.002; });
-    return <mesh ref={meshRef}><sphereGeometry args={[2.8, 64, 64]} /><meshStandardMaterial color="#aaaaaa" roughness={0.95} /></mesh>;
+    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.0008; });
+    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#aaaaaa" roughness={0.95} /></mesh>;
 }
 
 function SpinningPlanet() {
     const meshRef = useRef<THREE.Mesh>(null);
-    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.003; });
-    return <mesh ref={meshRef}><sphereGeometry args={[2.8, 64, 64]} /><meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.3} /></mesh>;
+    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.001; });
+    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.3} /></mesh>;
 }
 
 function Scene({ type }: { type: string }) {
     return (
-        <Canvas camera={{ position: [0, 0, 6.5], fov: 50 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
-            <ambientLight intensity={0.5} />
+        <Canvas camera={{ position: [0, 0, 6], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+            <ambientLight intensity={0.4} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
-            <pointLight position={[0, 0, 8]} intensity={0.5} color="#00ff88" />
+            <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
             <Suspense fallback={null}>
                 {type === 'globe' && <SpinningGlobe />}
                 {type === 'satellite' && <SpinningSatellite />}
@@ -68,9 +68,33 @@ const destinations = [
     { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan your observation sessions. Get optimal viewing windows, weather forecasts, and mission readiness scores for upcoming ISS passes.', type: 'plan', href: '/planning' },
 ];
 
+function PulsingRing({ size, delay }: { size: number, delay: number }) {
+    const [scale, setScale] = useState(1);
+    const [opacity, setOpacity] = useState(0.4);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setScale(s => s >= 1.8 ? 1 : s + 0.01);
+            setOpacity(o => o <= 0 ? 0.4 : o - 0.005);
+        }, 30);
+        return () => clearInterval(interval);
+    }, []);
+    return (
+        <div style={{
+            position: 'absolute', borderRadius: '50%',
+            width: size, height: size,
+            border: '1px solid rgba(0,255,136,0.3)',
+            transform: `scale(${scale})`,
+            opacity,
+            pointerEvents: 'none',
+            transition: 'none',
+        }} />
+    );
+}
+
 export default function LandingPage() {
     const [scrollY, setScrollY] = useState(0);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [glitching, setGlitching] = useState(false);
     const heroVideoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -82,6 +106,11 @@ export default function LandingPage() {
     useEffect(() => {
         if (heroVideoRef.current) heroVideoRef.current.play().catch(() => { });
     }, []);
+
+    const changeDestination = (newIndex: number) => {
+        setGlitching(true);
+        setTimeout(() => { setActiveIndex(newIndex); setGlitching(false); }, 150);
+    };
 
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
     const videoOpacity = Math.max(0, 1 - scrollY / (vh * 0.5));
@@ -148,93 +177,109 @@ export default function LandingPage() {
             {/* SECTION 4 — Choose Your Destination */}
             <div style={{ height: '100vh', background: '#000000', position: 'relative', zIndex: 20, opacity: section4Opacity, transition: 'opacity 0.1s linear', overflow: 'hidden' }}>
 
-                {/* Subtle scanlines */}
+                {/* Scanlines */}
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,136,0.012) 3px, rgba(0,255,136,0.012) 4px)', pointerEvents: 'none', zIndex: 1 }}></div>
 
-                {/* Title top center */}
-                <div style={{ position: 'absolute', top: '32px', left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
-                    <h1 style={{ fontFamily: '"Audiowide", cursive', fontSize: '32px', color: '#ffffff', margin: 0, letterSpacing: '4px', textTransform: 'uppercase' }}>
-                        Choose Your Destination
-                    </h1>
+                {/* Title */}
+                <div style={{ position: 'absolute', top: '28px', left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
+                    <div style={{ fontSize: '10px', letterSpacing: '6px', color: 'rgba(0,255,136,0.5)', fontFamily: 'monospace', marginBottom: '6px' }}>// SELECT MISSION MODULE</div>
+                    <h1 style={{ fontFamily: '"Audiowide", cursive', fontSize: '30px', color: '#ffffff', margin: 0, letterSpacing: '4px' }}>CHOOSE YOUR DESTINATION</h1>
                 </div>
 
-                {/* Left arrow — far left edge */}
-                <button onClick={() => setActiveIndex((activeIndex - 1 + destinations.length) % destinations.length)}
-                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#ffffff', fontSize: '40px', cursor: 'pointer', zIndex: 20, opacity: 0.6, transition: 'opacity 0.2s', fontFamily: 'monospace', padding: '10px' }}
-                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}>
+                {/* Left arrow */}
+                <button onClick={() => changeDestination((activeIndex - 1 + destinations.length) % destinations.length)}
+                    style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '44px', cursor: 'pointer', zIndex: 20, transition: 'all 0.2s', padding: '10px', lineHeight: 1 }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#00ff88'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}>
                     ‹
                 </button>
 
-                {/* Right arrow — far right edge */}
-                <button onClick={() => setActiveIndex((activeIndex + 1) % destinations.length)}
-                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#ffffff', fontSize: '40px', cursor: 'pointer', zIndex: 20, opacity: 0.6, transition: 'opacity 0.2s', fontFamily: 'monospace', padding: '10px' }}
-                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}>
+                {/* Right arrow */}
+                <button onClick={() => changeDestination((activeIndex + 1) % destinations.length)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '44px', cursor: 'pointer', zIndex: 20, transition: 'all 0.2s', padding: '10px', lineHeight: 1 }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#00ff88'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}>
                     ›
                 </button>
 
-                {/* Full bleed layout */}
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'row', zIndex: 5 }}>
+                {/* Main layout */}
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', zIndex: 5 }}>
 
-                    {/* Left — text panel */}
-                    <div style={{ width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '100px 40px 60px 80px' }}>
+                    {/* LEFT PANEL */}
+                    <div style={{ width: '45%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '100px 40px 80px 80px', position: 'relative' }}>
 
-                        {/* Corner bracket top left */}
-                        <div style={{ position: 'absolute', top: '80px', left: '60px', width: '40px', height: '40px', borderTop: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
-                        <div style={{ position: 'absolute', top: '86px', left: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%' }}></div>
+                        {/* Corner TL */}
+                        <div style={{ position: 'absolute', top: '76px', left: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
+                        <div style={{ position: 'absolute', top: '82px', left: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%' }}></div>
 
-                        {/* Corner bracket bottom left */}
-                        <div style={{ position: 'absolute', bottom: '60px', left: '60px', width: '40px', height: '40px', borderBottom: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
-                        <div style={{ position: 'absolute', bottom: '66px', left: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%' }}></div>
+                        {/* Corner BL */}
+                        <div style={{ position: 'absolute', bottom: '56px', left: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
+                        <div style={{ position: 'absolute', bottom: '62px', left: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%' }}></div>
 
-                        <div style={{ fontSize: '10px', letterSpacing: '5px', color: '#00ff88', marginBottom: '6px', fontFamily: 'monospace', fontWeight: 600 }}>{dest.tag}</div>
-                        <div style={{ fontSize: '10px', letterSpacing: '3px', color: 'rgba(255,255,255,0.3)', marginBottom: '20px', fontFamily: 'monospace' }}>MODULE {String(activeIndex + 1).padStart(2, '0')} OF {String(destinations.length).padStart(2, '0')}</div>
-
-                        <h2 style={{ fontFamily: '"Roboto", sans-serif', fontSize: '52px', fontWeight: '700', color: '#ffffff', margin: '0 0 20px 0', lineHeight: '1.1', letterSpacing: '-1px' }}>{dest.name}</h2>
-
-                        <div style={{ width: '40px', height: '2px', background: '#00ff88', marginBottom: '24px' }}></div>
-
-                        <p style={{ fontFamily: 'Arial, sans-serif', fontSize: '16px', color: 'rgba(255,255,255,0.65)', lineHeight: '1.8', margin: '0 0 40px 0', maxWidth: '420px' }}>{dest.description}</p>
-
-                        <Link href={dest.href}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '14px 28px', background: 'transparent', border: '1px solid #00ff88', color: '#00ff88', fontSize: '12px', fontWeight: '600', letterSpacing: '4px', textTransform: 'uppercase', textDecoration: 'none', width: 'fit-content', transition: 'all 0.2s', fontFamily: 'monospace' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = '#00ff88'; e.currentTarget.style.color = '#000000'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00ff88'; }}>
-                            INITIATE LAUNCH <span style={{ fontSize: '16px' }}>→</span>
-                        </Link>
-
+                        {/* Glitch effect on switch */}
+                        <div style={{ opacity: glitching ? 0 : 1, transition: 'opacity 0.1s' }}>
+                            <div style={{ fontSize: '10px', letterSpacing: '5px', color: '#00ff88', marginBottom: '4px', fontFamily: 'monospace' }}>{dest.tag}</div>
+                            <div style={{ fontSize: '10px', letterSpacing: '3px', color: 'rgba(255,255,255,0.25)', marginBottom: '20px', fontFamily: 'monospace' }}>
+                                MODULE {String(activeIndex + 1).padStart(2, '0')} / {String(destinations.length).padStart(2, '0')}
+                            </div>
+                            <h2 style={{ fontFamily: '"Roboto", sans-serif', fontSize: '50px', fontWeight: '700', color: '#ffffff', margin: '0 0 18px 0', lineHeight: '1.1', letterSpacing: '-1px' }}>{dest.name}</h2>
+                            <div style={{ width: '40px', height: '2px', background: '#00ff88', marginBottom: '22px' }}></div>
+                            <p style={{ fontFamily: 'Arial, sans-serif', fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.8', margin: '0 0 36px 0', maxWidth: '400px' }}>{dest.description}</p>
+                            <Link href={dest.href}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '13px 26px', background: 'transparent', border: '1px solid #00ff88', color: '#00ff88', fontSize: '11px', fontWeight: '600', letterSpacing: '4px', textTransform: 'uppercase', textDecoration: 'none', width: 'fit-content', transition: 'all 0.2s', fontFamily: 'monospace' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = '#00ff88'; e.currentTarget.style.color = '#000000'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00ff88'; }}>
+                                INITIATE LAUNCH →
+                            </Link>
+                        </div>
                     </div>
 
-                    {/* Right — 3D visual full height */}
-                    <div style={{ width: '56%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* RIGHT PANEL */}
+                    <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
-                        {/* Corner bracket top right */}
-                        <div style={{ position: 'absolute', top: '80px', right: '60px', width: '40px', height: '40px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
-                        <div style={{ position: 'absolute', top: '86px', right: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+                        {/* Corner TR */}
+                        <div style={{ position: 'absolute', top: '76px', right: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
+                        <div style={{ position: 'absolute', top: '82px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
 
-                        {/* Corner bracket bottom right */}
-                        <div style={{ position: 'absolute', bottom: '60px', right: '60px', width: '40px', height: '40px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
-                        <div style={{ position: 'absolute', bottom: '66px', right: '66px', width: '6px', height: '6px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+                        {/* Corner BR */}
+                        <div style={{ position: 'absolute', bottom: '56px', right: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
+                        <div style={{ position: 'absolute', bottom: '62px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
+
+                        {/* Pulsing rings behind globe */}
+                        <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <PulsingRing size={320} delay={0} />
+                            <PulsingRing size={280} delay={500} />
+                        </div>
+
+                        {/* Horizontal crosshair lines */}
+                        <div style={{ position: 'absolute', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(to right, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', left: '50%', top: '10%', bottom: '10%', width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
 
                         {/* Glow */}
-                        <div style={{ position: 'absolute', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
 
-                        <Scene type={dest.type} />
+                        {/* 3D Scene */}
+                        <div style={{ width: '100%', height: '100%', opacity: glitching ? 0.3 : 1, transition: 'opacity 0.1s' }}>
+                            <Scene type={dest.type} />
+                        </div>
+
                     </div>
-
                 </div>
 
-                {/* Dots bottom center */}
-                <div style={{ position: 'absolute', bottom: '24px', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '12px', zIndex: 10 }}>
+                {/* Dots */}
+                <div style={{ position: 'absolute', bottom: '20px', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '12px', zIndex: 10 }}>
                     {destinations.map((_, i) => (
-                        <button key={i} onClick={() => setActiveIndex(i)}
+                        <button key={i} onClick={() => changeDestination(i)}
                             style={{ width: i === activeIndex ? '28px' : '8px', height: '4px', borderRadius: '2px', background: i === activeIndex ? '#00ff88' : 'rgba(0,255,136,0.2)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }}>
                         </button>
                     ))}
                 </div>
 
             </div>
+
+            <style jsx>{`
+                @keyframes flicker { 0%, 100% { opacity: 1; } 92% { opacity: 1; } 93% { opacity: 0.4; } 94% { opacity: 1; } 96% { opacity: 0.6; } 97% { opacity: 1; } }
+            `}</style>
 
         </div>
     );
