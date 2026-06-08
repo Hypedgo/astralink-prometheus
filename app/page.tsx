@@ -51,33 +51,59 @@ function SpinningPlanet() {
     return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#1a3a5c" roughness={0.6} metalness={0.3} /></mesh>;
 }
 
-function Scene({ type }: { type: string }) {
-    const isSatellite = type === 'satellite';
+function GlobeScene() {
     return (
-        <Canvas
-            camera={{ position: [0, 0, isSatellite ? 22 : 6], fov: isSatellite ? 60 : 40 }}
-            style={{ background: 'transparent' }}
-            gl={{ alpha: true }}
-        >
+        <Canvas camera={{ position: [0, 0, 6], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
             <ambientLight intensity={0.4} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
             <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
-            <Suspense fallback={null}>
-                {type === 'globe' && <SpinningGlobe />}
-                {type === 'satellite' && <SatelliteModel />}
-                {type === 'moon' && <SpinningMoon />}
-                {type === 'plan' && <SpinningPlanet />}
-            </Suspense>
+            <Suspense fallback={null}><SpinningGlobe /></Suspense>
+        </Canvas>
+    );
+}
+
+function MoonScene() {
+    return (
+        <Canvas camera={{ position: [0, 0, 6], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
+            <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
+            <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
+            <Suspense fallback={null}><SpinningMoon /></Suspense>
+        </Canvas>
+    );
+}
+
+function PlanetScene() {
+    return (
+        <Canvas camera={{ position: [0, 0, 6], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
+            <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
+            <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
+            <Suspense fallback={null}><SpinningPlanet /></Suspense>
+        </Canvas>
+    );
+}
+
+function SatelliteScene() {
+    return (
+        <Canvas camera={{ position: [0, 0, 28], fov: 50 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
+            <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
+            <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
+            <Suspense fallback={null}><SatelliteModel /></Suspense>
         </Canvas>
     );
 }
 
 const destinations = [
-    { name: 'Mission Control', tag: 'ORBITAL OPERATIONS', description: 'Get an up to date mission brief as well as a 3d visualization localizing any place in the world. You will be able to fetch earth condition, space conditions, and a mission readiness score with only one search. ', type: 'globe', href: '/mission-control' },
-    { name: 'Sky View', tag: 'STELLAR NAVIGATION', description: 'Outside can sometimes be scary. Use sky view to be able to view the location of stars as well as the ISS anywhere in the world. ', type: 'moon', href: '/sky-view' },
+    { name: 'Mission Control', tag: 'ORBITAL OPERATIONS', description: 'Get an up to date mission brief as well as a 3d visualization localizing any place in the world. You will be able to fetch earth condition, space conditions, and a mission readiness score with only one search.', type: 'globe', href: '/mission-control' },
+    { name: 'Sky View', tag: 'STELLAR NAVIGATION', description: 'Outside can sometimes be scary. Use sky view to be able to view the location of stars as well as the ISS anywhere in the world.', type: 'moon', href: '/sky-view' },
     { name: 'Satellites', tag: 'SPACECRAFT TRACKING', description: 'Get the orbital tracking and elevation of four very prominent satellites in any place in the world. A graph will also be available for all satellites showing the elevation prediction for the next five passes.', type: 'satellite', href: '/satellites' },
-    { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan for the future. Get a mission readiness score for the next 7 days that uses space weather (Kp index), cloud coverage, and ISS pass elevation to determine optimal observation windows. ', type: 'plan', href: '/planning' },
+    { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan for the future. Get a mission readiness score for the next 7 days that uses space weather (Kp index), cloud coverage, and ISS pass elevation to determine optimal observation windows.', type: 'plan', href: '/planning' },
 ];
 
 function PulsingRing({ size }: { size: number }) {
@@ -126,6 +152,7 @@ export default function LandingPage() {
     const section4Opacity = Math.min(1, Math.max(0, (scrollY - vh * 3.2) / (vh * 0.3)));
 
     const dest = destinations[activeIndex];
+    const isSatellite = dest.type === 'satellite';
 
     return (
         <div style={{ background: '#000000' }}>
@@ -206,6 +233,13 @@ export default function LandingPage() {
                     ›
                 </button>
 
+                {/* Full page 3D canvas for satellite — sits behind text */}
+                {isSatellite && (
+                    <div style={{ position: 'absolute', inset: 0, zIndex: 2, opacity: glitching ? 0.3 : 1, transition: 'opacity 0.1s' }}>
+                        <SatelliteScene />
+                    </div>
+                )}
+
                 {/* Main layout */}
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', zIndex: 5 }}>
 
@@ -233,25 +267,29 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    {/* RIGHT PANEL */}
+                    {/* RIGHT PANEL — normal scenes for non-satellite */}
                     <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         <div style={{ position: 'absolute', top: '76px', right: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', top: '82px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', bottom: '56px', right: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', bottom: '62px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
 
-                        <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <PulsingRing size={320} />
-                            <PulsingRing size={280} />
-                        </div>
-
-                        <div style={{ position: 'absolute', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(to right, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
-                        <div style={{ position: 'absolute', left: '50%', top: '10%', bottom: '10%', width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
-                        <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
-
-                        <div style={{ width: '100%', height: '100%', opacity: glitching ? 0.3 : 1, transition: 'opacity 0.1s' }}>
-                            <Scene type={dest.type} />
-                        </div>
+                        {!isSatellite && (
+                            <>
+                                <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <PulsingRing size={320} />
+                                    <PulsingRing size={280} />
+                                </div>
+                                <div style={{ position: 'absolute', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(to right, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
+                                <div style={{ position: 'absolute', left: '50%', top: '10%', bottom: '10%', width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
+                                <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+                                <div style={{ width: '100%', height: '100%', opacity: glitching ? 0.3 : 1, transition: 'opacity 0.1s' }}>
+                                    {dest.type === 'globe' && <GlobeScene />}
+                                    {dest.type === 'moon' && <MoonScene />}
+                                    {dest.type === 'plan' && <PlanetScene />}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
