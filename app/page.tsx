@@ -19,13 +19,24 @@ function SpinningGlobe() {
 function SatelliteModel() {
     const { scene } = useGLTF('/satellite-model.glb');
     const groupRef = useRef<THREE.Group>(null);
+    useEffect(() => {
+        scene.traverse((child: any) => {
+            if (child.isMesh) {
+                child.material = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color('#c0c8d0'),
+                    metalness: 0.85,
+                    roughness: 0.3,
+                });
+            }
+        });
+    }, [scene]);
     useFrame(({ clock }) => {
         if (groupRef.current) {
             groupRef.current.rotation.y += 0.002;
             groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.15;
         }
     });
-    return <group ref={groupRef} scale={[0.8, 0.8, 0.8]}><primitive object={scene} /></group>;
+    return <group ref={groupRef} scale={[0.27, 0.27, 0.27]}><primitive object={scene} /></group>;
 }
 
 function SpinningMoon() {
