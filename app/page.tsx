@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRef, useEffect, useState, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useLoader } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 function SpinningGlobe() {
@@ -15,21 +16,16 @@ function SpinningGlobe() {
     return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial map={texture} /></mesh>;
 }
 
-function SpinningSatellite() {
+function SatelliteModel() {
+    const { scene } = useGLTF('/satellite-model.glb');
     const groupRef = useRef<THREE.Group>(null);
     useFrame(({ clock }) => {
         if (groupRef.current) {
             groupRef.current.rotation.y += 0.002;
-            groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.2;
+            groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.15;
         }
     });
-    return (
-        <group ref={groupRef}>
-            <mesh><boxGeometry args={[0.5, 0.12, 0.12]} /><meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} /></mesh>
-            <mesh position={[0, 0.08, 0]}><boxGeometry args={[2.0, 0.6, 0.03]} /><meshStandardMaterial color="#1a3d6b" metalness={0.6} /></mesh>
-            <mesh position={[0, -0.12, 0]}><boxGeometry args={[0.2, 0.1, 0.2]} /><meshStandardMaterial color="#cccccc" metalness={0.9} /></mesh>
-        </group>
-    );
+    return <group ref={groupRef} scale={[0.8, 0.8, 0.8]}><primitive object={scene} /></group>;
 }
 
 function SpinningMoon() {
@@ -53,7 +49,7 @@ function Scene({ type }: { type: string }) {
             <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
             <Suspense fallback={null}>
                 {type === 'globe' && <SpinningGlobe />}
-                {type === 'satellite' && <SpinningSatellite />}
+                {type === 'satellite' && <SatelliteModel />}
                 {type === 'moon' && <SpinningMoon />}
                 {type === 'plan' && <SpinningPlanet />}
             </Suspense>
@@ -68,7 +64,7 @@ const destinations = [
     { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan your observation sessions. Get optimal viewing windows, weather forecasts, and mission readiness scores for upcoming ISS passes.', type: 'plan', href: '/planning' },
 ];
 
-function PulsingRing({ size, delay }: { size: number, delay: number }) {
+function PulsingRing({ size }: { size: number }) {
     const [scale, setScale] = useState(1);
     const [opacity, setOpacity] = useState(0.4);
     useEffect(() => {
@@ -79,15 +75,7 @@ function PulsingRing({ size, delay }: { size: number, delay: number }) {
         return () => clearInterval(interval);
     }, []);
     return (
-        <div style={{
-            position: 'absolute', borderRadius: '50%',
-            width: size, height: size,
-            border: '1px solid rgba(0,255,136,0.3)',
-            transform: `scale(${scale})`,
-            opacity,
-            pointerEvents: 'none',
-            transition: 'none',
-        }} />
+        <div style={{ position: 'absolute', borderRadius: '50%', width: size, height: size, border: '1px solid rgba(0,255,136,0.3)', transform: `scale(${scale})`, opacity, pointerEvents: 'none', transition: 'none' }} />
     );
 }
 
@@ -207,16 +195,11 @@ export default function LandingPage() {
 
                     {/* LEFT PANEL */}
                     <div style={{ width: '45%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '100px 40px 80px 80px', position: 'relative' }}>
-
-                        {/* Corner TL */}
                         <div style={{ position: 'absolute', top: '76px', left: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
                         <div style={{ position: 'absolute', top: '82px', left: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%' }}></div>
-
-                        {/* Corner BL */}
                         <div style={{ position: 'absolute', bottom: '56px', left: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderLeft: '2px solid #00ff88' }}></div>
                         <div style={{ position: 'absolute', bottom: '62px', left: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%' }}></div>
 
-                        {/* Glitch effect on switch */}
                         <div style={{ opacity: glitching ? 0 : 1, transition: 'opacity 0.1s' }}>
                             <div style={{ fontSize: '10px', letterSpacing: '5px', color: '#00ff88', marginBottom: '4px', fontFamily: 'monospace' }}>{dest.tag}</div>
                             <div style={{ fontSize: '10px', letterSpacing: '3px', color: 'rgba(255,255,255,0.25)', marginBottom: '20px', fontFamily: 'monospace' }}>
@@ -236,33 +219,23 @@ export default function LandingPage() {
 
                     {/* RIGHT PANEL */}
                     <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-                        {/* Corner TR */}
                         <div style={{ position: 'absolute', top: '76px', right: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', top: '82px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
-
-                        {/* Corner BR */}
                         <div style={{ position: 'absolute', bottom: '56px', right: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', bottom: '62px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
 
-                        {/* Pulsing rings behind globe */}
                         <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <PulsingRing size={320} delay={0} />
-                            <PulsingRing size={280} delay={500} />
+                            <PulsingRing size={320} />
+                            <PulsingRing size={280} />
                         </div>
 
-                        {/* Horizontal crosshair lines */}
                         <div style={{ position: 'absolute', left: '10%', right: '10%', height: '1px', background: 'linear-gradient(to right, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
                         <div style={{ position: 'absolute', left: '50%', top: '10%', bottom: '10%', width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(0,255,136,0.15), transparent)', pointerEvents: 'none' }}></div>
-
-                        {/* Glow */}
                         <div style={{ position: 'absolute', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
 
-                        {/* 3D Scene */}
                         <div style={{ width: '100%', height: '100%', opacity: glitching ? 0.3 : 1, transition: 'opacity 0.1s' }}>
                             <Scene type={dest.type} />
                         </div>
-
                     </div>
                 </div>
 
@@ -274,7 +247,6 @@ export default function LandingPage() {
                         </button>
                     ))}
                 </div>
-
             </div>
 
             <style jsx>{`
