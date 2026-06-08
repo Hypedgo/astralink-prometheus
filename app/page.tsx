@@ -36,7 +36,7 @@ function SatelliteModel() {
             groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.15;
         }
     });
-    return <group ref={groupRef} scale={[0.5, 0.5, 0.5]}><primitive object={scene} /></group>;
+    return <group ref={groupRef} scale={[0.4, 0.4, 0.4]}><primitive object={scene} /></group>;
 }
 
 function SpinningMoon() {
@@ -52,8 +52,13 @@ function SpinningPlanet() {
 }
 
 function Scene({ type }: { type: string }) {
+    const isSatellite = type === 'satellite';
     return (
-        <Canvas camera={{ position: [0, 0, 18], fov: 55 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+        <Canvas
+            camera={{ position: [0, 0, isSatellite ? 22 : 6], fov: isSatellite ? 60 : 40 }}
+            style={{ background: 'transparent' }}
+            gl={{ alpha: true }}
+        >
             <ambientLight intensity={0.4} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
@@ -229,7 +234,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* RIGHT PANEL */}
-                    <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
+                    <div style={{ width: '55%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         <div style={{ position: 'absolute', top: '76px', right: '56px', width: '44px', height: '44px', borderTop: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', top: '82px', right: '62px', width: '5px', height: '5px', background: '#00ff88', borderRadius: '50%', zIndex: 10 }}></div>
                         <div style={{ position: 'absolute', bottom: '56px', right: '56px', width: '44px', height: '44px', borderBottom: '2px solid #00ff88', borderRight: '2px solid #00ff88', zIndex: 10 }}></div>
