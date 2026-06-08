@@ -36,7 +36,7 @@ function SatelliteModel() {
             groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.15;
         }
     });
-    return <group ref={groupRef} scale={[0.15, 0.15, 0.15]}><primitive object={scene} /></group>;
+    return <group ref={groupRef} scale={[0.5, 0.5, 0.5]}><primitive object={scene} /></group>;
 }
 
 function SpinningMoon() {
@@ -53,7 +53,7 @@ function SpinningPlanet() {
 
 function Scene({ type }: { type: string }) {
     return (
-        <Canvas camera={{ position: [0, 0, 9], fov: 55 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+        <Canvas camera={{ position: [0, 0, 18], fov: 55 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
             <ambientLight intensity={0.4} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
