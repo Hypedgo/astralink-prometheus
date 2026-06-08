@@ -74,10 +74,10 @@ function Scene({ type }: { type: string }) {
 }
 
 const destinations = [
-    { name: 'Mission Control', tag: 'ORBITAL OPERATIONS', description: 'Real-time 3D orbital tracking, space weather monitoring, ISS pass predictions, and live mission readiness scoring. Your command center for everything in orbit.', type: 'globe', href: '/mission-control' },
-    { name: 'Sky View', tag: 'STELLAR NAVIGATION', description: 'A live planetarium in your browser. Track stars, constellations, planets, and the ISS position in real time from your exact location on Earth.', type: 'moon', href: '/sky-view' },
-    { name: 'Satellites', tag: 'SPACECRAFT TRACKING', description: 'Track active satellites in orbit. View pass predictions, orbital data, and real-time positions for a growing catalog of spacecraft.', type: 'satellite', href: '/satellites' },
-    { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan your observation sessions. Get optimal viewing windows, weather forecasts, and mission readiness scores for upcoming ISS passes.', type: 'plan', href: '/planning' },
+    { name: 'Mission Control', tag: 'ORBITAL OPERATIONS', description: 'Get an up to date mission brief as well as a 3d visualization localizing any place in the world. You will be able to fetch earth condition, space conditions, and a mission readiness score with only one search. ', type: 'globe', href: '/mission-control' },
+    { name: 'Sky View', tag: 'STELLAR NAVIGATION', description: 'Outside can sometimes be scary. Use sky view to be able to view the location of stars as well as the ISS anywhere in the world. ', type: 'moon', href: '/sky-view' },
+    { name: 'Satellites', tag: 'SPACECRAFT TRACKING', description: 'Get the orbital tracking and elevation of four very prominent satellites in any place in the world. A graph will also be available for all satellites showing the elevation prediction for the next five passes.', type: 'satellite', href: '/satellites' },
+    { name: 'Planning', tag: 'MISSION PLANNING', description: 'Plan for the future. Get a mission readiness score for the next 7 days that uses space weather (Kp index), cloud coverage, and ISS pass elevation to determine optimal observation windows. ', type: 'plan', href: '/planning' },
 ];
 
 function PulsingRing({ size }: { size: number }) {
