@@ -218,7 +218,7 @@ export default function LandingPage() {
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,136,0.012) 3px, rgba(0,255,136,0.012) 4px)', pointerEvents: 'none', zIndex: 1 }}></div>
 
                 {/* Title */}
-                <div style={{ position: 'absolute', top: '28px', left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
+                <div style={{ position: 'absolute', top: '70px', left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
                     <div style={{ fontSize: '10px', letterSpacing: '6px', color: 'rgba(0,255,136,0.5)', fontFamily: 'monospace', marginBottom: '6px' }}>// SELECT MISSION MODULE</div>
                     <h1 style={{ fontFamily: '"Audiowide", cursive', fontSize: '30px', color: '#ffffff', margin: 0, letterSpacing: '4px' }}>CHOOSE YOUR DESTINATION</h1>
                 </div>
