@@ -36,7 +36,7 @@ function SatelliteModel() {
             groupRef.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.3) * 0.15;
         }
     });
-    return <group ref={groupRef} scale={[10, 10, 10]} position={[4, 0, 0]}><primitive object={scene} /></group>;
+    return <group ref={groupRef} scale={[10, 10, 10]} position={[8, 0, 0]}><primitive object={scene} /></group>;
 }
 
 function SpinningMoon() {
