@@ -39,10 +39,13 @@ function SatelliteModel() {
     return <group ref={groupRef} scale={[7, 7, 7]} position={[18, 0, 0]}><primitive object={scene} /></group>;
 }
 
-function SpinningMoon() {
-    const meshRef = useRef<THREE.Mesh>(null);
-    useFrame(() => { if (meshRef.current) meshRef.current.rotation.y += 0.0008; });
-    return <mesh ref={meshRef}><sphereGeometry args={[1.8, 64, 64]} /><meshStandardMaterial color="#aaaaaa" roughness={0.95} /></mesh>;
+function SolarSystemModel() {
+    const { scene } = useGLTF('/solar-system.glb');
+    const groupRef = useRef<THREE.Group>(null);
+    useFrame(() => {
+        if (groupRef.current) groupRef.current.rotation.y += 0.001;
+    });
+    return <group ref={groupRef} scale={[0.5, 0.5, 0.5]} position={[0, 0, 0]}><primitive object={scene} /></group>;
 }
 
 function SpinningPlanet() {
@@ -66,11 +69,11 @@ function GlobeScene() {
 function MoonScene() {
     return (
         <Canvas camera={{ position: [0, 0, 6], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
-            <ambientLight intensity={0.4} />
+            <ambientLight intensity={0.6} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
             <pointLight position={[0, 0, 8]} intensity={0.4} color="#00ff88" />
-            <Suspense fallback={null}><SpinningMoon /></Suspense>
+            <Suspense fallback={null}><SolarSystemModel /></Suspense>
         </Canvas>
     );
 }
