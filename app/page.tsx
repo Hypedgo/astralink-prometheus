@@ -45,7 +45,7 @@ function SolarSystemModel() {
     useFrame(() => {
         if (groupRef.current) groupRef.current.rotation.y += 0.001;
     });
-    return <group ref={groupRef} scale={[0.1, 0.1, 0.1]} position={[0, 0, 0]}><primitive object={scene} /></group>;
+    return <group ref={groupRef} scale={[0.2, 0.2, 0.2]} position={[0, 0, 0]}><primitive object={scene} /></group>;
 }
 
 function SpinningPlanet() {
@@ -68,7 +68,7 @@ function GlobeScene() {
 
 function MoonScene() {
     return (
-        <Canvas camera={{ position: [0, 0, 40], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
+        <Canvas camera={{ position: [0, 0, 25], fov: 40 }} style={{ background: 'transparent' }} gl={{ alpha: true }}>
             <ambientLight intensity={0.6} />
             <directionalLight position={[5, 3, 5]} intensity={2.5} color="#ffffff" />
             <directionalLight position={[-4, -2, -4]} intensity={0.3} color="#4466ff" />
