@@ -54,7 +54,7 @@ function SpacesuitModel() {
     useFrame(() => {
         if (groupRef.current) groupRef.current.rotation.y += 0.003;
     });
-    return <group ref={groupRef} scale={[1, 1, 1]} position={[0, -0.8, 0]}><primitive object={scene} /></group>;
+    return <group ref={groupRef} scale={[1, 1, 1]} position={[0, -0.5, 0]}><primitive object={scene} /></group>;
 }
 
 function GlobeScene() {
