@@ -112,13 +112,12 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', background: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#22d3ee', fontSize: '14px', letterSpacing: '3px', fontWeight: '600' }}>
-        <div style={{ fontSize: '24px', marginBottom: '20px', letterSpacing: '4px' }}>ASTRALINK PROMETHEUS</div>
-        <div style={{ fontSize: '12px', color: '#888', letterSpacing: '2px' }}>INITIALIZING MISSION CONTROL SYSTEMS...</div>
-        <div style={{ marginTop: '30px', width: '200px', height: '2px', background: 'rgba(34, 211, 238, 0.2)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: '40%', background: '#22d3ee', animation: 'loading 2s ease-in-out infinite' }} />
+      <div style={{ width: '100vw', height: '100vh', background: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', paddingBottom: '300px' }}>
+        <img src="/logo.png" alt="AstraLink" style={{ width: '360px', opacity: 0.9, marginBottom: '-90px' }} />
+        <div style={{ width: '360px', height: '3px', background: 'rgba(34,211,238,0.2)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: '40%', background: '#22d3ee', animation: 'loading 1.4s ease-in-out infinite' }} />
         </div>
-        <style>{`@keyframes loading { 0% { transform: translateX(-100%); } 50% { transform: translateX(250%); } 100% { transform: translateX(-100%); } }`}</style>
+        <style>{`@keyframes loading { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }`}</style>
       </div>
     )
   }
@@ -128,7 +127,7 @@ export default function Home() {
       <NavBar />
       <MissionBrief location={location} />
       <SystemStatus />
-      
+
       <LocationSearch onLocationSelect={handleLocationSelect} />
       <AstraLinkCopilot latitude={location.latitude} longitude={location.longitude} locationName={location.displayName} />
       <Canvas camera={{ position: [0, 1, 6], fov: 45 }}>
