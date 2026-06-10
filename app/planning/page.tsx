@@ -131,11 +131,21 @@ function MiniAreaChart({ data, color }: { data: { x: string; y: number }[]; colo
 }
 
 function LoadingScreen() {
+    const [dots, setDots] = useState('');
+    useEffect(() => {
+        const id = setInterval(() => {
+            setDots(d => d.length >= 3 ? '' : d + '.');
+        }, 500);
+        return () => clearInterval(id);
+    }, []);
     return (
-        <div style={{ width: '100vw', height: '100vh', background: T.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
-            <div style={{ fontFamily: T.fontHead, fontSize: '11px', color: T.green, letterSpacing: '4px' }}>ANALYZING OBSERVATION WINDOWS</div>
-            <div style={{ width: '240px', height: '1px', background: T.border, overflow: 'hidden', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: T.green, animation: 'scan 1.4s ease-in-out infinite' }} />
+        <div style={{ width: '100vw', height: '100vh', background: '#000000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '40px' }}>
+            <img src="/logo.png" alt="AstraLink" style={{ width: '220px', opacity: 0.9 }} />
+            <div style={{ width: '240px', height: '1px', background: 'rgba(0,255,136,0.15)', overflow: 'hidden', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: '#00ff88', animation: 'scan 1.4s ease-in-out infinite' }} />
+            </div>
+            <div style={{ fontFamily: "'Audiowide', sans-serif", fontSize: '11px', color: 'rgba(0,255,136,0.7)', letterSpacing: '4px' }}>
+                PLEASE STAND BY{dots}
             </div>
             <style>{`@keyframes scan { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }`}</style>
         </div>
