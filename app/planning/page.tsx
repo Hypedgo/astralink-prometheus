@@ -139,13 +139,13 @@ function LoadingScreen() {
         return () => clearInterval(id);
     }, []);
     return (
-        <div style={{ width: '100vw', height: '100vh', background: '#000000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '40px' }}>
+        <div style={{ width: '100vw', height: '100vh', background: '#000000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
             <img src="/logo.png" alt="AstraLink" style={{ width: '220px', opacity: 0.9 }} />
-            <div style={{ width: '240px', height: '1px', background: 'rgba(0,255,136,0.15)', overflow: 'hidden', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: '#00ff88', animation: 'scan 1.4s ease-in-out infinite' }} />
-            </div>
-            <div style={{ fontFamily: "'Audiowide', sans-serif", fontSize: '11px', color: 'rgba(0,255,136,0.7)', letterSpacing: '4px' }}>
+            <div style={{ fontFamily: '"Roboto", sans-serif', fontSize: '13px', color: '#ffffff', letterSpacing: '3px' }}>
                 PLEASE STAND BY{dots}
+            </div>
+            <div style={{ width: '240px', height: '2px', background: 'rgba(34,211,238,0.2)', overflow: 'hidden', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: '#22d3ee', animation: 'scan 1.4s ease-in-out infinite' }} />
             </div>
             <style>{`@keyframes scan { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }`}</style>
         </div>
