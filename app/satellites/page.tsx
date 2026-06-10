@@ -62,7 +62,7 @@ export default function SatelliteOperations() {
         { id: 'STARLINK', name: 'Starlink-2411', norad_id: 53105 },
     ];
 
-    const [selectedSatellites, setSelectedSatellites] = useState<string[]>(['ISS', 'HUBBLE']);
+    const [selectedSatellites, setSelectedSatellites] = useState<string[]>(['ISS', 'HUBBLE', 'TIANGONG', 'STARLINK']);
     const [satelliteData, setSatelliteData] = useState<Record<string, SatellitePasses>>({});
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
