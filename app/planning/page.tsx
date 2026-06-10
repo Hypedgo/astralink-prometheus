@@ -88,9 +88,9 @@ function scoreColor(score: number) {
 
 function PanelHeader({ title, right }: { title: string; right?: string }) {
     return (
-        <div style={{ borderBottom: `1px solid ${T.border}`, padding: '8px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
-            <span style={{ fontFamily: T.fontHead, fontSize: '10px', color: T.textPrimary, letterSpacing: '1.5px' }}>{title}</span>
-            {right && <span style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, letterSpacing: '1px', textTransform: 'uppercase' }}>{right}</span>}
+        <div style={{ borderBottom: `1px solid ${T.border}`, padding: '10px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
+            <span style={{ fontFamily: T.fontHead, fontSize: '12px', color: T.textPrimary, letterSpacing: '1.5px' }}>{title}</span>
+            {right && <span style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, letterSpacing: '1px', textTransform: 'uppercase' }}>{right}</span>}
         </div>
     );
 }
@@ -101,16 +101,16 @@ function Panel({ children, style }: { children: React.ReactNode; style?: React.C
 
 function CondRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${T.border}` }}>
-            <span style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textMuted }}>{label}</span>
-            <span style={{ fontFamily: T.fontBody, fontSize: '12px', fontWeight: 700, color: valueColor || T.textPrimary }}>{value}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: `1px solid ${T.border}` }}>
+            <span style={{ fontFamily: T.fontBody, fontSize: '14px', color: T.textMuted }}>{label}</span>
+            <span style={{ fontFamily: T.fontBody, fontSize: '14px', fontWeight: 700, color: valueColor || T.textPrimary }}>{value}</span>
         </div>
     );
 }
 
 function MiniAreaChart({ data, color }: { data: { x: string; y: number }[]; color: string }) {
     return (
-        <div style={{ width: '100%', height: 80, marginTop: 10 }}>
+        <div style={{ width: '100%', height: 90, marginTop: 12 }}>
             <ResponsiveContainer>
                 <AreaChart data={data} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
                     <defs>
@@ -120,9 +120,9 @@ function MiniAreaChart({ data, color }: { data: { x: string; y: number }[]; colo
                         </linearGradient>
                     </defs>
                     <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                    <XAxis dataKey="x" tick={{ fill: T.textMuted, fontSize: 9, fontFamily: T.fontBody }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: T.textMuted, fontSize: 9, fontFamily: T.fontBody }} axisLine={false} tickLine={false} width={28} />
-                    <Tooltip contentStyle={{ background: '#000000', border: `1px solid ${T.borderMed}`, borderRadius: 4, color: T.textPrimary, fontSize: 11, fontFamily: T.fontBody }} labelStyle={{ color: T.textMuted }} />
+                    <XAxis dataKey="x" tick={{ fill: T.textMuted, fontSize: 11, fontFamily: T.fontBody }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: T.textMuted, fontSize: 11, fontFamily: T.fontBody }} axisLine={false} tickLine={false} width={28} />
+                    <Tooltip contentStyle={{ background: '#000000', border: `1px solid ${T.borderMed}`, borderRadius: 4, color: T.textPrimary, fontSize: 12, fontFamily: T.fontBody }} labelStyle={{ color: T.textMuted }} />
                     <Area type="monotone" dataKey="y" stroke={color} strokeWidth={1.5} fill={`url(#grad-${color.replace(/[^a-z]/gi, '')})`} />
                 </AreaChart>
             </ResponsiveContainer>
@@ -228,7 +228,6 @@ export default function MissionPlanning() {
 
     if (loading || !forecast) return <LoadingScreen />;
 
-    // Compute score and tier from best available data
     const currentScore = forecast.next_optimal_window?.score ?? Math.round(
         (forecast.metadata.current_kp <= 3 ? 40 : forecast.metadata.current_kp <= 5 ? 25 : 10) +
         (forecast.metadata.current_clouds < 30 ? 40 : forecast.metadata.current_clouds < 60 ? 25 : 10) +
@@ -241,29 +240,29 @@ export default function MissionPlanning() {
             <NavBar />
 
             {/* UTC bar */}
-            <div style={{ borderBottom: `1px solid ${T.greenBorder}`, padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.8)', marginTop: '56px' }}>
-                <div style={{ fontFamily: T.fontHead, fontSize: '11px', color: T.green, letterSpacing: '2px' }}>◈ MISSION PLANNING</div>
-                <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, letterSpacing: '1px' }}>UTC {utc}</div>
+            <div style={{ borderBottom: `1px solid ${T.greenBorder}`, padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.8)', marginTop: '56px' }}>
+                <div style={{ fontFamily: T.fontHead, fontSize: '13px', color: T.green, letterSpacing: '2px' }}>◈ MISSION PLANNING</div>
+                <div style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textMuted, letterSpacing: '1px' }}>UTC {utc}</div>
             </div>
 
-            <div style={{ padding: '0 20px 60px' }}>
+            <div style={{ padding: '0 24px 60px' }}>
 
                 {/* Location bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', border: `1px solid ${T.border}`, borderTop: 'none', background: 'rgba(0,0,0,0.5)', marginBottom: '14px', flexWrap: 'wrap' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.green, flexShrink: 0 }} />
-                    <span style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textPrimary, flex: 1 }}>{location.displayName}</span>
-                    <span style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted }}>{location.lat.toFixed(4)}° N · {Math.abs(location.lon).toFixed(4)}° W</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 18px', border: `1px solid ${T.border}`, borderTop: 'none', background: 'rgba(0,0,0,0.5)', marginBottom: '16px', flexWrap: 'wrap' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: T.green, flexShrink: 0 }} />
+                    <span style={{ fontFamily: T.fontBody, fontSize: '15px', color: T.textPrimary, flex: 1 }}>{location.displayName}</span>
+                    <span style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textMuted }}>{location.lat.toFixed(4)}° N · {Math.abs(location.lon).toFixed(4)}° W</span>
                     <div style={{ position: 'relative' }}>
                         <input type="text" placeholder="Change location..." value={searchQuery} onChange={e => handleSearch(e.target.value)}
-                            style={{ background: '#000000', border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontBody, fontSize: '11px', padding: '6px 10px', width: '180px', outline: 'none' }} />
+                            style={{ background: '#000000', border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontBody, fontSize: '13px', padding: '8px 12px', width: '200px', outline: 'none' }} />
                         {showResults && searchResults.length > 0 && (
-                            <div style={{ position: 'absolute', top: '100%', right: 0, background: '#000000', border: `1px solid ${T.borderMed}`, zIndex: 100, minWidth: '260px' }}>
+                            <div style={{ position: 'absolute', top: '100%', right: 0, background: '#000000', border: `1px solid ${T.borderMed}`, zIndex: 100, minWidth: '280px' }}>
                                 {searchResults.map((r, i) => (
-                                    <div key={i} onClick={() => handleLocationSelect(r)} style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: `1px solid ${T.border}` }}
+                                    <div key={i} onClick={() => handleLocationSelect(r)} style={{ padding: '12px 14px', cursor: 'pointer', borderBottom: `1px solid ${T.border}` }}
                                         onMouseEnter={e => (e.currentTarget.style.background = T.bgHover)}
                                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                                        <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textPrimary }}>{r.display_name}</div>
-                                        <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>{r.latitude.toFixed(4)}°, {r.longitude.toFixed(4)}°</div>
+                                        <div style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textPrimary }}>{r.display_name}</div>
+                                        <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, marginTop: '2px' }}>{r.latitude.toFixed(4)}°, {r.longitude.toFixed(4)}°</div>
                                     </div>
                                 ))}
                             </div>
@@ -272,26 +271,26 @@ export default function MissionPlanning() {
                 </div>
 
                 {/* Mission Readiness */}
-                <Panel style={{ marginBottom: '14px' }}>
+                <Panel style={{ marginBottom: '16px' }}>
                     <PanelHeader title="Mission Readiness" right={location.name} />
-                    <div style={{ padding: '14px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-                            <div style={{ fontFamily: T.fontSerif, fontSize: '56px', color: scoreColor(currentScore), lineHeight: 1, flexShrink: 0 }}>
+                    <div style={{ padding: '18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '14px' }}>
+                            <div style={{ fontFamily: T.fontSerif, fontSize: '72px', color: scoreColor(currentScore), lineHeight: 1, flexShrink: 0 }}>
                                 {currentScore}
                             </div>
                             <div style={{ flex: 1 }}>
-                                <div style={{ height: '7px', background: 'rgba(255,255,255,0.06)', border: `1px solid ${T.border}`, marginBottom: '7px' }}>
+                                <div style={{ height: '9px', background: 'rgba(255,255,255,0.06)', border: `1px solid ${T.border}`, marginBottom: '9px' }}>
                                     <div style={{ height: '100%', width: `${currentScore}%`, background: scoreColor(currentScore), transition: 'width 0.5s ease' }} />
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontFamily: T.fontHead, fontSize: '9px', color: scoreColor(currentScore), border: `1px solid ${tierBorder(currentTier)}`, background: tierBg(currentTier), padding: '3px 10px', letterSpacing: '2px' }}>
+                                    <span style={{ fontFamily: T.fontHead, fontSize: '11px', color: scoreColor(currentScore), border: `1px solid ${tierBorder(currentTier)}`, background: tierBg(currentTier), padding: '4px 12px', letterSpacing: '2px' }}>
                                         {currentTier === 'GREEN' ? '▶ GO FOR OPERATIONS' : currentTier === 'YELLOW' ? '◐ CONDITIONAL GO' : '✕ NO-GO'}
                                     </span>
-                                    <span style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted }}>/ 100</span>
+                                    <span style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textMuted }}>/ 100</span>
                                 </div>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '28px', paddingTop: '12px', borderTop: `1px solid ${T.border}`, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '32px', paddingTop: '14px', borderTop: `1px solid ${T.border}`, flexWrap: 'wrap' }}>
                             {[
                                 { label: 'Kp Index', value: String(forecast.metadata.current_kp), color: forecast.metadata.current_kp <= 4 ? T.green : T.yellow },
                                 { label: 'Cloud Cover', value: `${forecast.metadata.current_clouds}%`, color: forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red },
@@ -302,8 +301,8 @@ export default function MissionPlanning() {
                                 ] : []),
                             ].map(({ label, value, color }) => (
                                 <div key={label}>
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '3px' }}>{label}</div>
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '14px', fontWeight: 700, color }}>{value}</div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>{label}</div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '17px', fontWeight: 700, color }}>{value}</div>
                                 </div>
                             ))}
                         </div>
@@ -311,27 +310,27 @@ export default function MissionPlanning() {
                 </Panel>
 
                 {/* Forecast + Brief */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px,280px) 1fr', gap: '14px', marginBottom: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px,300px) 1fr', gap: '16px', marginBottom: '16px' }}>
                     <Panel>
                         <PanelHeader title="Readiness Forecast" right="7-day" />
-                        <div style={{ padding: '10px 14px' }}>
+                        <div style={{ padding: '12px 18px' }}>
                             {forecast.weekly_7d.map((day, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '6px 0', borderBottom: i < forecast.weekly_7d.length - 1 ? `1px solid ${T.border}` : 'none' }}>
-                                    <span style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textSec, width: '88px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: i < forecast.weekly_7d.length - 1 ? `1px solid ${T.border}` : 'none' }}>
+                                    <span style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textSec, width: '96px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                         {i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `Day +${i}`}
                                     </span>
                                     <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '9px', color: T.border, overflow: 'hidden', whiteSpace: 'nowrap', letterSpacing: '3px' }}>
                                         ......................
                                     </span>
-                                    <span style={{ fontFamily: T.fontSerif, fontSize: '22px', color: tierColor(day.tier), width: '36px', textAlign: 'right', lineHeight: 1 }}>{day.score}</span>
-                                    <span style={{ fontFamily: T.fontHead, fontSize: '8px', color: tierColor(day.tier), width: '76px', textAlign: 'right', letterSpacing: '1px' }}>{tierLabel(day.tier)}</span>
+                                    <span style={{ fontFamily: T.fontSerif, fontSize: '26px', color: tierColor(day.tier), width: '40px', textAlign: 'right', lineHeight: 1 }}>{day.score}</span>
+                                    <span style={{ fontFamily: T.fontHead, fontSize: '9px', color: tierColor(day.tier), width: '80px', textAlign: 'right', letterSpacing: '1px' }}>{tierLabel(day.tier)}</span>
                                 </div>
                             ))}
                         </div>
                     </Panel>
                     <Panel>
                         <PanelHeader title="Mission Brief" right="Live conditions" />
-                        <div style={{ padding: '12px 14px' }}>
+                        <div style={{ padding: '14px 18px' }}>
                             {[
                                 `Geomagnetic conditions ${forecast.metadata.current_kp <= 3 ? 'stable' : 'elevated'} — Kp ${forecast.metadata.current_kp}, ${forecast.metadata.current_kp <= 4 ? 'below' : 'above'} alert threshold`,
                                 `Cloud cover currently ${forecast.metadata.current_clouds}% — ${forecast.metadata.current_clouds < 30 ? 'clear skies, optimal for observation' : forecast.metadata.current_clouds < 60 ? 'partial cloud cover, conditions marginal' : 'heavy cloud cover, observation not recommended'}`,
@@ -340,20 +339,20 @@ export default function MissionPlanning() {
                                 highestKpDay ? `Peak geomagnetic activity forecast: Kp ${highestKpDay.kp} on ${highestKpDay.day_name} — plan around this window` : '',
                                 `7-day GO windows: ${forecast.weekly_7d.filter(d => d.tier === 'GREEN').length} of 7 days suitable for operations`,
                             ].filter(Boolean).map((line, i) => (
-                                <div key={i} style={{ display: 'flex', gap: '8px', padding: '5px 0', borderBottom: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '12px', color: T.textSec, lineHeight: '1.5' }}>
+                                <div key={i} style={{ display: 'flex', gap: '10px', padding: '7px 0', borderBottom: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '14px', color: T.textSec, lineHeight: '1.6' }}>
                                     <span style={{ color: T.greenDim, flexShrink: 0 }}>▸</span>{line}
                                 </div>
                             ))}
                             {forecast.next_optimal_window && (
-                                <div style={{ marginTop: '12px', border: `1px solid ${T.greenBorder}`, background: T.greenBg, padding: '10px 12px' }}>
-                                    <div style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.greenDim, letterSpacing: '2px', marginBottom: '5px' }}>RECOMMENDATION</div>
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textPrimary }}>
+                                <div style={{ marginTop: '14px', border: `1px solid ${T.greenBorder}`, background: T.greenBg, padding: '12px 14px' }}>
+                                    <div style={{ fontFamily: T.fontHead, fontSize: '9px', color: T.greenDim, letterSpacing: '2px', marginBottom: '6px' }}>RECOMMENDATION</div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '14px', color: T.textPrimary }}>
                                         Primary window: {forecast.next_optimal_window.hour || forecast.next_optimal_window.day_name}
                                         {forecast.next_optimal_window.pass_time ? ` · ISS pass ${forecast.next_optimal_window.pass_time}` : ''}
                                     </div>
                                 </div>
                             )}
-                            <div style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, marginTop: '10px', paddingTop: '8px', borderTop: `1px solid ${T.border}` }}>
+                            <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, marginTop: '12px', paddingTop: '10px', borderTop: `1px solid ${T.border}` }}>
                                 Sources: <span style={{ color: T.textSec }}>NOAA SWPC</span> · <span style={{ color: T.textSec }}>Open-Meteo</span> · <span style={{ color: T.textSec }}>N2YO</span>
                             </div>
                         </div>
@@ -361,10 +360,10 @@ export default function MissionPlanning() {
                 </div>
 
                 {/* Earth + Space conditions */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <Panel>
                         <PanelHeader title="Earth Conditions" />
-                        <div style={{ padding: '10px 14px' }}>
+                        <div style={{ padding: '12px 18px' }}>
                             <CondRow label="Cloud Cover" value={`${forecast.metadata.current_clouds}%`} valueColor={forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red} />
                             <CondRow label="Visibility" value={forecast.metadata.current_clouds < 30 ? 'Excellent' : forecast.metadata.current_clouds < 60 ? 'Good' : 'Poor'} />
                             <CondRow label="Sky Quality" value={forecast.metadata.current_clouds < 30 ? 'Clear' : forecast.metadata.current_clouds < 60 ? 'Partly cloudy' : 'Overcast'} />
@@ -372,7 +371,7 @@ export default function MissionPlanning() {
                     </Panel>
                     <Panel>
                         <PanelHeader title="Space Conditions" />
-                        <div style={{ padding: '10px 14px' }}>
+                        <div style={{ padding: '12px 18px' }}>
                             <CondRow label="Kp Index" value={`${forecast.metadata.current_kp} — ${forecast.metadata.current_kp <= 3 ? 'Low' : forecast.metadata.current_kp <= 5 ? 'Moderate' : 'High'}`} valueColor={forecast.metadata.current_kp <= 3 ? T.green : forecast.metadata.current_kp <= 5 ? T.yellow : T.red} />
                             <CondRow label="Geomagnetic" value={forecast.metadata.current_kp <= 3 ? 'Stable' : 'Active'} valueColor={forecast.metadata.current_kp <= 3 ? T.green : T.yellow} />
                             <CondRow label="Auroral Activity" value={forecast.metadata.current_kp <= 3 ? 'Low' : forecast.metadata.current_kp <= 5 ? 'Moderate' : 'High'} />
@@ -381,7 +380,7 @@ export default function MissionPlanning() {
                 </div>
 
                 {/* Readiness scale */}
-                <Panel style={{ marginBottom: '14px' }}>
+                <Panel style={{ marginBottom: '16px' }}>
                     <PanelHeader title="Readiness Scale" />
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderTop: `1px solid ${T.border}` }}>
                         {[
@@ -389,19 +388,19 @@ export default function MissionPlanning() {
                             { range: '60 – 79', tier: 'YELLOW' as const, label: '◐ CAUTION', desc: 'Kp 4–6 · Clouds 30–70% · Elevation 30–50°' },
                             { range: '0 – 59', tier: 'RED' as const, label: '✕ NO-GO', desc: 'Kp >6 · Clouds >70% · Elevation <30°' },
                         ].map(({ range, tier, label, desc }, i) => (
-                            <div key={tier} style={{ padding: '14px', borderRight: i < 2 ? `1px solid ${T.border}` : 'none', background: tierBg(tier) }}>
-                                <div style={{ fontFamily: T.fontSerif, fontSize: '28px', color: tierColor(tier), marginBottom: '4px' }}>{range}</div>
-                                <div style={{ fontFamily: T.fontHead, fontSize: '9px', color: tierColor(tier), letterSpacing: '1.5px', marginBottom: '6px' }}>{label}</div>
-                                <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted }}>{desc}</div>
+                            <div key={tier} style={{ padding: '18px', borderRight: i < 2 ? `1px solid ${T.border}` : 'none', background: tierBg(tier) }}>
+                                <div style={{ fontFamily: T.fontSerif, fontSize: '32px', color: tierColor(tier), marginBottom: '6px' }}>{range}</div>
+                                <div style={{ fontFamily: T.fontHead, fontSize: '10px', color: tierColor(tier), letterSpacing: '1.5px', marginBottom: '8px' }}>{label}</div>
+                                <div style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textMuted }}>{desc}</div>
                             </div>
                         ))}
                     </div>
                 </Panel>
 
                 {/* 72-hour hourly grid */}
-                <Panel style={{ marginBottom: '14px' }}>
+                <Panel style={{ marginBottom: '16px' }}>
                     <PanelHeader title="72-Hour Hourly Forecast" right="🛰 = ISS pass window" />
-                    <div style={{ padding: '12px 14px' }}>
+                    <div style={{ padding: '14px 18px' }}>
                         {(() => {
                             const byDay: Record<string, ForecastWindow[]> = {};
                             forecast.hourly_72h.forEach(w => {
@@ -410,16 +409,16 @@ export default function MissionPlanning() {
                                 byDay[key].push(w);
                             });
                             return Object.entries(byDay).map(([day, windows]) => (
-                                <div key={day} style={{ marginBottom: '12px' }}>
-                                    <div style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.textMuted, letterSpacing: '2px', marginBottom: '6px', textTransform: 'uppercase' }}>{day}</div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: '4px' }}>
+                                <div key={day} style={{ marginBottom: '14px' }}>
+                                    <div style={{ fontFamily: T.fontHead, fontSize: '10px', color: T.textMuted, letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase' }}>{day}</div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '5px' }}>
                                         {windows.map((w, i) => (
-                                            <div key={i} style={{ border: `1px solid ${w.has_pass ? tierBorder(w.tier) : T.border}`, background: w.has_pass ? tierBg(w.tier) : T.bg, padding: '7px 4px', textAlign: 'center', cursor: 'pointer', transition: 'background 0.15s' }}
+                                            <div key={i} style={{ border: `1px solid ${w.has_pass ? tierBorder(w.tier) : T.border}`, background: w.has_pass ? tierBg(w.tier) : T.bg, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', transition: 'background 0.15s' }}
                                                 onMouseEnter={e => (e.currentTarget.style.background = w.has_pass ? tierBg(w.tier) : T.bgHover)}
                                                 onMouseLeave={e => (e.currentTarget.style.background = w.has_pass ? tierBg(w.tier) : T.bg)}>
-                                                <div style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, marginBottom: '2px' }}>{w.hour}</div>
-                                                <div style={{ fontFamily: T.fontSerif, fontSize: '20px', color: tierColor(w.tier), lineHeight: 1, marginBottom: '2px' }}>{w.score}</div>
-                                                {w.has_pass && <div style={{ fontSize: '10px', opacity: 0.7 }}>🛰</div>}
+                                                <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginBottom: '3px' }}>{w.hour}</div>
+                                                <div style={{ fontFamily: T.fontSerif, fontSize: '22px', color: tierColor(w.tier), lineHeight: 1, marginBottom: '3px' }}>{w.score}</div>
+                                                {w.has_pass && <div style={{ fontSize: '11px', opacity: 0.7 }}>🛰</div>}
                                             </div>
                                         ))}
                                     </div>
@@ -430,17 +429,17 @@ export default function MissionPlanning() {
                 </Panel>
 
                 {/* Trend charts */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <Panel>
                         <PanelHeader title="Kp Index Trend" right="7-day forecast" />
-                        <div style={{ padding: '12px 14px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                        <div style={{ padding: '14px 18px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                                 <div>
-                                    <div style={{ fontFamily: T.fontSerif, fontSize: '36px', color: forecast.metadata.current_kp <= 4 ? T.green : T.yellow, lineHeight: 1 }}>{forecast.metadata.current_kp}</div>
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>Current Kp index</div>
+                                    <div style={{ fontFamily: T.fontSerif, fontSize: '42px', color: forecast.metadata.current_kp <= 4 ? T.green : T.yellow, lineHeight: 1 }}>{forecast.metadata.current_kp}</div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textMuted, marginTop: '4px' }}>Current Kp index</div>
                                 </div>
                                 {highestKpDay && (
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.yellow, background: T.yellowBg, border: `1px solid ${T.yellowBorder}`, padding: '5px 8px', textAlign: 'right' }}>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.yellow, background: T.yellowBg, border: `1px solid ${T.yellowBorder}`, padding: '6px 10px', textAlign: 'right' }}>
                                         ⚠ Peak Kp {highestKpDay.kp}<br /><span style={{ color: T.textMuted }}>{highestKpDay.day_name}</span>
                                     </div>
                                 )}
@@ -450,14 +449,14 @@ export default function MissionPlanning() {
                     </Panel>
                     <Panel>
                         <PanelHeader title="Cloud Cover Trend" right="7-day forecast" />
-                        <div style={{ padding: '12px 14px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                        <div style={{ padding: '14px 18px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                                 <div>
-                                    <div style={{ fontFamily: T.fontSerif, fontSize: '36px', color: forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red, lineHeight: 1 }}>{forecast.metadata.current_clouds}%</div>
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>Current cloud cover</div>
+                                    <div style={{ fontFamily: T.fontSerif, fontSize: '42px', color: forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red, lineHeight: 1 }}>{forecast.metadata.current_clouds}%</div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textMuted, marginTop: '4px' }}>Current cloud cover</div>
                                 </div>
                                 {clearestDay && (
-                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.green, background: T.greenBg, border: `1px solid ${T.greenBorder}`, padding: '5px 8px', textAlign: 'right' }}>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.green, background: T.greenBg, border: `1px solid ${T.greenBorder}`, padding: '6px 10px', textAlign: 'right' }}>
                                         ✓ Clearest: {clearestDay.day_name}<br /><span style={{ color: T.textMuted }}>{clearestDay.clouds}% clouds</span>
                                     </div>
                                 )}
@@ -468,39 +467,39 @@ export default function MissionPlanning() {
                 </div>
 
                 {/* Alert thresholds */}
-                <Panel style={{ marginBottom: '14px' }}>
+                <Panel style={{ marginBottom: '16px' }}>
                     <PanelHeader title="Alert Thresholds" right="Saved locally" />
-                    <div style={{ padding: '14px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '14px' }}>
+                    <div style={{ padding: '18px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
                             {[
                                 { label: 'Min Score', key: 'minScore' as const, value: alertThresholds.minScore },
                                 { label: 'Max Kp Index', key: 'maxKp' as const, value: alertThresholds.maxKp },
                                 { label: 'Max Cloud Cover %', key: 'maxClouds' as const, value: alertThresholds.maxClouds },
                             ].map(({ label, key, value }) => (
                                 <div key={key}>
-                                    <label style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.textMuted, letterSpacing: '2px', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>{label}</label>
+                                    <label style={{ fontFamily: T.fontHead, fontSize: '9px', color: T.textMuted, letterSpacing: '2px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>{label}</label>
                                     <input type="number" value={value} onChange={e => setAlertThresholds({ ...alertThresholds, [key]: parseInt(e.target.value) })}
-                                        style={{ width: '100%', background: '#000000', border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontSerif, fontSize: '28px', padding: '8px 10px', outline: 'none' }}
+                                        style={{ width: '100%', background: '#000000', border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontSerif, fontSize: '32px', padding: '10px 12px', outline: 'none' }}
                                         onFocus={e => (e.currentTarget.style.borderColor = T.greenBorder)}
                                         onBlur={e => (e.currentTarget.style.borderColor = T.borderMed)} />
                                 </div>
                             ))}
                         </div>
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
                             <button onClick={saveAlertSettings}
-                                style={{ background: 'transparent', color: T.green, border: `1px solid ${T.green}`, fontFamily: T.fontHead, fontSize: '9px', letterSpacing: '2px', padding: '10px 22px', cursor: 'pointer', transition: 'all 0.2s' }}
+                                style={{ background: 'transparent', color: T.green, border: `1px solid ${T.green}`, fontFamily: T.fontHead, fontSize: '10px', letterSpacing: '2px', padding: '12px 26px', cursor: 'pointer', transition: 'all 0.2s' }}
                                 onMouseEnter={e => { e.currentTarget.style.background = T.green; e.currentTarget.style.color = '#000'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.green; }}>
                                 {saved ? 'SAVED ✓' : 'SAVE SETTINGS'}
                             </button>
                             <button onClick={exportToCalendar}
-                                style={{ background: 'transparent', color: T.textSec, border: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '11px', padding: '10px 18px', cursor: 'pointer', letterSpacing: '0.5px' }}
+                                style={{ background: 'transparent', color: T.textSec, border: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '13px', padding: '12px 20px', cursor: 'pointer', letterSpacing: '0.5px' }}
                                 onMouseEnter={e => (e.currentTarget.style.borderColor = T.borderMed)}
                                 onMouseLeave={e => (e.currentTarget.style.borderColor = T.border)}>
                                 ↓ Export .ICS Calendar
                             </button>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '7px', fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, cursor: 'pointer' }}>
-                                <input type="checkbox" checked={alertsEnabled} onChange={e => setAlertsEnabled(e.target.checked)} style={{ width: '14px', height: '14px' }} />
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: T.fontBody, fontSize: '13px', color: T.textMuted, cursor: 'pointer' }}>
+                                <input type="checkbox" checked={alertsEnabled} onChange={e => setAlertsEnabled(e.target.checked)} style={{ width: '16px', height: '16px' }} />
                                 In-app notifications
                             </label>
                         </div>
