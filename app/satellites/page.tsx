@@ -62,7 +62,7 @@ export default function SatelliteOperations() {
         { id: 'STARLINK', name: 'Starlink-2411', norad_id: 53105 },
     ];
 
-    const [selectedSatellites, setSelectedSatellites] = useState<string[]>(['ISS', 'HUBBLE', 'TIANGONG', 'STARLINK']);
+    const [selectedSatellites, setSelectedSatellites] = useState<string[]>(['ISS', 'HUBBLE']);
     const [satelliteData, setSatelliteData] = useState<Record<string, SatellitePasses>>({});
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -96,6 +96,8 @@ export default function SatelliteOperations() {
                 const data = await response.json();
                 if (!data.error && data.satellite && data.passes) {
                     newData[satId] = data;
+                } else {
+                    console.warn(`No valid data for ${satId}:`, data);
                 }
             } catch (error) {
                 console.error(`Failed to fetch ${satId}:`, error);
@@ -145,13 +147,13 @@ export default function SatelliteOperations() {
     };
 
     const allPasses = availableSatellites
-        .filter(s => satelliteData[s.id])
+        .filter(s => satelliteData[s.id] && satelliteData[s.id].passes?.length > 0)
         .flatMap(s => (satelliteData[s.id].passes || []).slice(0, 3).map(p => ({ ...p, satId: s.id })))
-        .sort((a, b) => a.start_time.localeCompare(b.start_time))
+        .sort((a, b) => a.start_local.localeCompare(b.start_local))
         .slice(0, 6);
 
     const bestPass = allPasses[0];
-    const totalPasses = Object.values(satelliteData).reduce((acc, d) => acc + d.passes.length, 0);
+    const totalPasses = Object.values(satelliteData).reduce((acc, d) => acc + (d.passes?.length ?? 0), 0);
 
     if (loading) {
         return (
