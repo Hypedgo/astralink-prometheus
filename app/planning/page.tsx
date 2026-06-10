@@ -1,19 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link'
+import Link from 'next/link';
 import NavBar from '../NavBar';
 import {
     ResponsiveContainer,
-    LineChart,
-    Line,
+    AreaChart,
+    Area,
     XAxis,
     YAxis,
     Tooltip,
     CartesianGrid,
-    Area,
-    AreaChart
-} from "recharts";
+} from 'recharts';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ForecastWindow {
     time?: string;
@@ -34,96 +34,219 @@ interface DetailedForecastData {
     hourly_72h: ForecastWindow[];
     weekly_7d: ForecastWindow[];
     next_optimal_window: ForecastWindow | null;
-    trends: {
-        kp: number[];
-        clouds: number[];
-    };
-    metadata: {
-        current_kp: number;
-        current_clouds: number;
-    };
+    trends: { kp: number[]; clouds: number[] };
+    metadata: { current_kp: number; current_clouds: number };
 }
 
-// Mini trend chart component
-function MiniTrendChart({
-    data,
-    valueKey,
-    color = "rgba(0,255,136,0.9)"
-}: {
-    data: { x: string; y: number }[];
-    valueKey: "kp" | "clouds";
-    color?: string;
-}) {
+// ─── Design tokens ────────────────────────────────────────────────────────────
+
+const T = {
+    green: '#00d97e',
+    greenDim: 'rgba(0,217,126,0.45)',
+    greenBg: 'rgba(0,217,126,0.05)',
+    greenBorder: 'rgba(0,217,126,0.22)',
+    yellow: '#f5a623',
+    yellowBg: 'rgba(245,166,35,0.08)',
+    yellowBorder: 'rgba(245,166,35,0.25)',
+    red: '#e05c5c',
+    redBg: 'rgba(224,92,92,0.07)',
+    redBorder: 'rgba(224,92,92,0.25)',
+    blue: '#4ab3d4',
+    textPrimary: '#e8e8e8',
+    textSec: 'rgba(232,232,232,0.5)',
+    textMuted: 'rgba(232,232,232,0.25)',
+    border: 'rgba(255,255,255,0.07)',
+    borderMed: 'rgba(255,255,255,0.12)',
+    bg: '#06080a',
+    bgPanel: '#0b0f12',
+    bgHover: 'rgba(255,255,255,0.03)',
+    fontHead: "'Audiowide', sans-serif",
+    fontBody: "Arial, sans-serif",
+    fontSerif: "'DM Serif Display', serif",
+} as const;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function tierColor(tier: string) {
+    if (tier === 'GREEN') return T.green;
+    if (tier === 'YELLOW') return T.yellow;
+    return T.red;
+}
+
+function tierBorder(tier: string) {
+    if (tier === 'GREEN') return T.greenBorder;
+    if (tier === 'YELLOW') return T.yellowBorder;
+    return T.redBorder;
+}
+
+function tierBg(tier: string) {
+    if (tier === 'GREEN') return T.greenBg;
+    if (tier === 'YELLOW') return T.yellowBg;
+    return T.redBg;
+}
+
+function tierLabel(tier: string) {
+    if (tier === 'GREEN') return '■ GO';
+    if (tier === 'YELLOW') return '◐ CAUTION';
+    return '✕ NO-GO';
+}
+
+function scoreColor(score: number) {
+    if (score >= 80) return T.green;
+    if (score >= 60) return T.yellow;
+    return T.red;
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function PanelHeader({ title, right }: { title: string; right?: string }) {
     return (
-        <div style={{ width: "100%", height: 140, marginTop: 18 }}>
+        <div style={{
+            borderBottom: `1px solid ${T.border}`,
+            padding: '8px 14px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'rgba(255,255,255,0.02)',
+        }}>
+            <span style={{
+                fontFamily: T.fontHead,
+                fontSize: '10px',
+                color: T.textPrimary,
+                letterSpacing: '1.5px',
+            }}>
+                {title}
+            </span>
+            {right && (
+                <span style={{
+                    fontFamily: T.fontBody,
+                    fontSize: '9px',
+                    color: T.textMuted,
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                }}>
+                    {right}
+                </span>
+            )}
+        </div>
+    );
+}
+
+function Panel({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+    return (
+        <div style={{
+            border: `1px solid ${T.border}`,
+            background: T.bgPanel,
+            ...style,
+        }}>
+            {children}
+        </div>
+    );
+}
+
+function CondRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
+    return (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '6px 0',
+            borderBottom: `1px solid ${T.border}`,
+        }}>
+            <span style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textMuted }}>{label}</span>
+            <span style={{ fontFamily: T.fontBody, fontSize: '12px', fontWeight: 700, color: valueColor || T.textPrimary }}>{value}</span>
+        </div>
+    );
+}
+
+function MiniAreaChart({ data, color }: { data: { x: string; y: number }[]; color: string }) {
+    return (
+        <div style={{ width: '100%', height: 80, marginTop: 10 }}>
             <ResponsiveContainer>
-                <AreaChart data={data}>
+                <AreaChart data={data} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
                     <defs>
-                        <linearGradient id={`gradient-${valueKey}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                        <linearGradient id={`grad-${color.replace(/[^a-z]/gi, '')}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={color} stopOpacity={0.25} />
                             <stop offset="95%" stopColor={color} stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                    <XAxis
-                        dataKey="x"
-                        tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 10 }}
-                        axisLine={false}
-                        tickLine={false}
-                    />
-                    <YAxis
-                        tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 10 }}
-                        axisLine={false}
-                        tickLine={false}
-                        width={30}
-                    />
+                    <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+                    <XAxis dataKey="x" tick={{ fill: T.textMuted, fontSize: 9, fontFamily: T.fontBody }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: T.textMuted, fontSize: 9, fontFamily: T.fontBody }} axisLine={false} tickLine={false} width={28} />
                     <Tooltip
-                        contentStyle={{
-                            background: "rgba(0,0,0,0.9)",
-                            border: "1px solid rgba(255,255,255,0.12)",
-                            borderRadius: 10,
-                            color: "#fff",
-                            fontSize: 12,
-                        }}
-                        labelStyle={{ color: "rgba(255,255,255,0.6)" }}
+                        contentStyle={{ background: '#0b0f12', border: `1px solid ${T.borderMed}`, borderRadius: 4, color: T.textPrimary, fontSize: 11, fontFamily: T.fontBody }}
+                        labelStyle={{ color: T.textMuted }}
                     />
-                    <Area
-                        type="monotone"
-                        dataKey="y"
-                        stroke={color}
-                        strokeWidth={2}
-                        fill={`url(#gradient-${valueKey})`}
-                    />
+                    <Area type="monotone" dataKey="y" stroke={color} strokeWidth={1.5} fill={`url(#grad-${color.replace(/[^a-z]/gi, '')})`} />
                 </AreaChart>
             </ResponsiveContainer>
         </div>
     );
 }
 
+// ─── Loading screen ───────────────────────────────────────────────────────────
+
+function LoadingScreen() {
+    return (
+        <div style={{
+            width: '100vw', height: '100vh',
+            background: T.bg,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: '20px',
+        }}>
+            <div style={{ fontFamily: T.fontHead, fontSize: '11px', color: T.green, letterSpacing: '4px' }}>
+                ANALYZING OBSERVATION WINDOWS
+            </div>
+            <div style={{ width: '240px', height: '1px', background: T.border, overflow: 'hidden', position: 'relative' }}>
+                <div style={{
+                    position: 'absolute', top: 0, left: 0,
+                    width: '40%', height: '100%',
+                    background: T.green,
+                    animation: 'scan 1.4s ease-in-out infinite',
+                }} />
+            </div>
+            <style>{`@keyframes scan { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }`}</style>
+        </div>
+    );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
 export default function MissionPlanning() {
     const [location, setLocation] = useState({
         lat: 34.6868,
         lon: -118.1542,
         name: 'Lancaster, CA',
-        displayName: 'Lancaster, California, USA'
+        displayName: 'Lancaster, California, USA',
     });
     const [forecast, setForecast] = useState<DetailedForecastData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [alertThresholds, setAlertThresholds] = useState({
-        minScore: 80,
-        maxKp: 4,
-        maxClouds: 30
-    });
+    const [alertThresholds, setAlertThresholds] = useState({ minScore: 80, maxKp: 4, maxClouds: 30 });
     const [alertsEnabled, setAlertsEnabled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [showResults, setShowResults] = useState(false);
+    const [utc, setUtc] = useState('');
+    const [saved, setSaved] = useState(false);
+
+    // UTC clock
+    useEffect(() => {
+        const tick = () => {
+            const n = new Date();
+            const p = (v: number) => String(v).padStart(2, '0');
+            setUtc(`${p(n.getUTCHours())}:${p(n.getUTCMinutes())}:${p(n.getUTCSeconds())}`);
+        };
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => clearInterval(id);
+    }, []);
 
     useEffect(() => {
         fetchForecast();
-        const saved = localStorage.getItem('astralink_alerts');
-        if (saved) {
-            const parsed = JSON.parse(saved);
+        const raw = localStorage.getItem('astralink_alerts');
+        if (raw) {
+            const parsed = JSON.parse(raw);
             setAlertThresholds(parsed.thresholds);
             setAlertsEnabled(parsed.enabled);
         }
@@ -132,1004 +255,533 @@ export default function MissionPlanning() {
     const fetchForecast = async () => {
         setLoading(true);
         try {
-            const response = await fetch(
-                `https://astralink-prometheus-production.up.railway.app/api/forecast/detailed?lat=${location.lat}&lon=${location.lon}`
-            );
-            const data = await response.json();
+            const res = await fetch(`https://astralink-prometheus-production.up.railway.app/api/forecast/detailed?lat=${location.lat}&lon=${location.lon}`);
+            const data = await res.json();
             setForecast(data);
-        } catch (error) {
-            console.error('Failed to fetch forecast:', error);
+        } catch (e) {
+            console.error('Failed to fetch forecast:', e);
         }
         setLoading(false);
     };
 
     const handleSearch = async (query: string) => {
         setSearchQuery(query);
-        if (query.length < 2) {
-            setSearchResults([]);
-            setShowResults(false);
-            return;
-        }
-
+        if (query.length < 2) { setSearchResults([]); setShowResults(false); return; }
         try {
-            const response = await fetch(
-                `https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(query)}`
-            );
-            const data = await response.json();
-
-            if (!data.error) {
-                setSearchResults([data]);
-                setShowResults(true);
-            }
-        } catch (error) {
-            console.error('Search failed:', error);
-        }
+            const res = await fetch(`https://astralink-prometheus-production.up.railway.app/api/geocode?location=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if (!data.error) { setSearchResults([data]); setShowResults(true); }
+        } catch (e) { console.error('Search failed:', e); }
     };
 
     const handleLocationSelect = (result: any) => {
-        setLocation({
-            lat: result.latitude,
-            lon: result.longitude,
-            name: result.location_name,
-            displayName: result.display_name
-        });
-        setSearchQuery('');
-        setShowResults(false);
-        setSearchResults([]);
+        setLocation({ lat: result.latitude, lon: result.longitude, name: result.location_name, displayName: result.display_name });
+        setSearchQuery(''); setShowResults(false); setSearchResults([]);
     };
 
     const saveAlertSettings = () => {
-        localStorage.setItem('astralink_alerts', JSON.stringify({
-            thresholds: alertThresholds,
-            enabled: alertsEnabled
-        }));
-        alert('Alert settings saved! (In-app notifications will appear when conditions match your criteria)');
+        localStorage.setItem('astralink_alerts', JSON.stringify({ thresholds: alertThresholds, enabled: alertsEnabled }));
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
     };
 
     const exportToCalendar = () => {
         if (!forecast) return;
-
-        const optimalWindows = [
+        const windows = [
             ...forecast.hourly_72h.filter(w => w.score >= alertThresholds.minScore && w.has_pass),
-            ...forecast.weekly_7d.filter(w => w.score >= alertThresholds.minScore)
+            ...forecast.weekly_7d.filter(w => w.score >= alertThresholds.minScore),
         ];
-
-        let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AstraLink//Mission Planning//EN\n';
-
-        optimalWindows.slice(0, 10).forEach((window, i) => {
-            const startTime = window.time || window.date || new Date().toISOString();
-            const formatted = startTime.replace(/[-:]/g, '').split('.')[0] + 'Z';
-
-            icsContent += `BEGIN:VEVENT\n`;
-            icsContent += `UID:astralink-${i}@astralink.com\n`;
-            icsContent += `DTSTAMP:${formatted}\n`;
-            icsContent += `DTSTART:${formatted}\n`;
-            icsContent += `SUMMARY:ISS Observation - Score ${window.score}\n`;
-            icsContent += `DESCRIPTION:Optimal observation window\\nScore: ${window.score}/100\\nElevation: ${window.elevation}°\\nClouds: ${window.clouds}%\\nKp: ${window.kp}\n`;
-            icsContent += `END:VEVENT\n`;
+        let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AstraLink//Mission Planning//EN\n';
+        windows.slice(0, 10).forEach((w, i) => {
+            const t = (w.time || w.date || new Date().toISOString()).replace(/[-:]/g, '').split('.')[0] + 'Z';
+            ics += `BEGIN:VEVENT\nUID:astralink-${i}@astralink.com\nDTSTAMP:${t}\nDTSTART:${t}\nSUMMARY:ISS Observation - Score ${w.score}\nDESCRIPTION:Score: ${w.score}/100\\nElevation: ${w.elevation}°\\nClouds: ${w.clouds}%\\nKp: ${w.kp}\nEND:VEVENT\n`;
         });
-
-        icsContent += 'END:VCALENDAR';
-
-        const blob = new Blob([icsContent], { type: 'text/calendar' });
-        const url = URL.createObjectURL(blob);
+        ics += 'END:VCALENDAR';
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
         a.download = 'astralink-observation-windows.ics';
         a.click();
     };
 
-    const getTierColor = (tier: string) => {
-        switch (tier) {
-            case 'GREEN': return '#00ff88';
-            case 'YELLOW': return '#ffaa00';
-            case 'RED': return '#ff3366';
-            default: return '#666666';
-        }
+    // Chart data
+    const kpSeries = forecast?.weekly_7d?.map((d, i) => ({ x: (d.day_name || `D${i + 1}`).slice(0, 3), y: d.kp })) ?? [];
+    const cloudSeries = forecast?.weekly_7d?.map((d, i) => ({ x: (d.day_name || `D${i + 1}`).slice(0, 3), y: d.clouds })) ?? [];
+    const highestKpDay = forecast?.weekly_7d?.reduce((max, d) => d.kp > (max?.kp ?? 0) ? d : max, forecast.weekly_7d[0]);
+    const clearestDay = forecast?.weekly_7d?.reduce((min, d) => d.clouds < (min?.clouds ?? 100) ? d : min, forecast.weekly_7d[0]);
+
+    if (loading || !forecast) return <LoadingScreen />;
+
+    // ── Layout styles ──────────────────────────────────────────────────────────
+
+    const pageStyle: React.CSSProperties = {
+        width: '100vw',
+        minHeight: '100vh',
+        background: T.bg,
+        color: T.textPrimary,
+        fontFamily: T.fontBody,
     };
 
-    // Prepare chart data
-    const kpSeries = forecast?.weekly_7d?.map((day, i) => ({
-        x: day.day_name?.slice(0, 3) || `Day ${i + 1}`,
-        y: day.kp
-    })) ?? [];
-
-    const cloudSeries = forecast?.weekly_7d?.map((day, i) => ({
-        x: day.day_name?.slice(0, 3) || `Day ${i + 1}`,
-        y: day.clouds
-    })) ?? [];
-
-    // Find highest Kp and clearest day
-    const highestKpDay = forecast?.weekly_7d?.reduce((max, day) =>
-        day.kp > (max?.kp || 0) ? day : max
-        , forecast.weekly_7d[0]);
-
-    const clearestDay = forecast?.weekly_7d?.reduce((min, day) =>
-        day.clouds < (min?.clouds || 100) ? day : min
-        , forecast.weekly_7d[0]);
-
-    if (loading || !forecast) {
-        return (
-            <div style={{
-                width: '100vw',
-                height: '100vh',
-                background: '#000000',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-            }}>
-                <div style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#ffffff',
-                    letterSpacing: '4px',
-                    marginBottom: '30px',
-                    textTransform: 'uppercase'
-                }}>
-                    Analyzing Observation Windows
-                </div>
-                <div style={{
-                    width: '300px',
-                    height: '2px',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '2px',
-                    overflow: 'hidden'
-                }}>
-                    <div style={{
-                        width: '50%',
-                        height: '100%',
-                        background: 'linear-gradient(90deg, transparent, #ffffff, transparent)',
-                        animation: 'slide 1.5s infinite'
-                    }}></div>
-                </div>
-                <style jsx>{`
-          @keyframes slide {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(400%); }
-          }
-        `}</style>
-            </div>
-        );
-    }
+    const wrapStyle: React.CSSProperties = {
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: '0 20px 60px',
+    };
 
     return (
-        <div style={{
-            width: '100vw',
-            minHeight: '100vh',
-            background: '#000000',
-            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-            color: '#ffffff',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundImage: `
-          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-        `,
-                backgroundSize: '100px 100px',
-                opacity: 0.3,
-                pointerEvents: 'none'
-            }}></div>
+        <div style={pageStyle}>
+            <NavBar />
 
-            <NavBar />`n            <nav style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '90px',
-                background: 'rgba(0, 0, 0, 0.8)',
-                backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+            {/* ── Top bar ─────────────────────────────────────────────────── */}
+            <div style={{
+                borderBottom: `1px solid ${T.greenBorder}`,
+                padding: '10px 20px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '0 80px',
-                zIndex: 1000
+                background: T.bgPanel,
+                flexWrap: 'wrap',
+                gap: '10px',
             }}>
-                <Link href="/mission-control" style={{
-                    fontSize: '20px',
-                    fontWeight: '800',
-                    color: '#ffffff',
-                    textDecoration: 'none',
-                    letterSpacing: '2px',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    textTransform: 'uppercase'
-                }}>
-                    Astralink
-                </Link>
-
-                <div style={{ display: 'flex', gap: '50px', alignItems: 'center' }}>
-                    <Link href="/mission-control" style={{
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        textDecoration: 'none',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        letterSpacing: '1.5px',
-                        textTransform: 'uppercase',
-                        transition: 'color 0.3s'
-                    }}>
-                        Mission Control
-                    </Link>
-                    <div style={{
-                        color: '#ffffff',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        letterSpacing: '1.5px',
-                        textTransform: 'uppercase',
-                        position: 'relative',
-                        paddingBottom: '2px'
-                    }}>
-                        Planning
-                        <div style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: '2px',
-                            background: '#00ff88'
-                        }}></div>
-                    </div>
-                    <Link href="/satellites" style={{
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        textDecoration: 'none',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        letterSpacing: '1.5px',
-                        textTransform: 'uppercase',
-                        transition: 'color 0.3s'
-                    }}>
-                        Satellites
-                    </Link>
+                <div style={{ fontFamily: T.fontHead, fontSize: '13px', color: T.green, letterSpacing: '2px' }}>
+                    ◈ ASTRALINK PROMETHEUS
                 </div>
-            </nav>
-
-            {/* Location Search */}
-            <div style={{
-                position: 'fixed',
-                top: '120px',
-                left: '80px',
-                zIndex: 999,
-                width: '400px'
-            }}>
-                <div style={{
-                    background: 'rgba(0, 0, 0, 0.8)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: '20px'
-                }}>
-                    <div style={{
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        letterSpacing: '2px',
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        marginBottom: '12px',
-                        textTransform: 'uppercase'
-                    }}>
-                        Current Location
-                    </div>
-                    <div style={{
-                        fontSize: '18px',
-                        fontWeight: '700',
-                        color: '#00ff88',
-                        marginBottom: '16px'
-                    }}>
-                        {location.displayName}
-                    </div>
-                    <div style={{
-                        fontSize: '12px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginBottom: '16px'
-                    }}>
-                        {location.lat.toFixed(4)}°, {location.lon.toFixed(4)}°
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="Search new location..."
-                        value={searchQuery}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        style={{
-                            width: '100%',
-                            background: 'rgba(0, 0, 0, 0.5)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            color: '#ffffff',
-                            fontSize: '14px',
-                            outline: 'none'
-                        }}
-                    />
-                    {showResults && searchResults.length > 0 && (
-                        <div style={{
-                            marginTop: '8px',
-                            background: 'rgba(0, 0, 0, 0.9)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '8px',
-                            overflow: 'hidden'
+                <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap' }}>
+                    {[
+                        { href: '/mission-control', label: 'Mission Control' },
+                        { href: '/planning', label: 'Planning', active: true },
+                        { href: '/satellites', label: 'Satellites' },
+                        { href: '/sky-view', label: 'Sky View' },
+                    ].map(({ href, label, active }) => (
+                        <Link key={href} href={href} style={{
+                            fontFamily: T.fontBody,
+                            fontSize: '11px',
+                            letterSpacing: '1.5px',
+                            textTransform: 'uppercase',
+                            textDecoration: 'none',
+                            color: active ? T.textPrimary : T.textSec,
+                            borderBottom: active ? `1px solid ${T.green}` : 'none',
+                            paddingBottom: active ? '2px' : '0',
                         }}>
-                            {searchResults.map((result, i) => (
-                                <div
-                                    key={i}
-                                    onClick={() => handleLocationSelect(result)}
-                                    style={{
-                                        padding: '12px',
-                                        cursor: 'pointer',
-                                        borderBottom: i < searchResults.length - 1 ? '1px solid rgba(255, 255, 255, 0.05)' : 'none',
-                                        transition: 'background 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                >
-                                    <div style={{
-                                        fontSize: '13px',
-                                        color: '#ffffff',
-                                        marginBottom: '4px'
-                                    }}>
-                                        {result.display_name}
-                                    </div>
-                                    <div style={{
-                                        fontSize: '11px',
-                                        color: 'rgba(255, 255, 255, 0.4)'
-                                    }}>
-                                        {result.latitude.toFixed(4)}°, {result.longitude.toFixed(4)}°
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                            {label}
+                        </Link>
+                    ))}
+                </div>
+                <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, letterSpacing: '1px' }}>
+                    UTC {utc}
                 </div>
             </div>
 
-            <div style={{
-                paddingTop: '150px',
-                paddingBottom: '100px',
-                maxWidth: '1600px',
-                margin: '0 auto',
-                padding: '150px 80px 100px 520px',
-                position: 'relative',
-                zIndex: 1
-            }}>
-                <div style={{ marginBottom: '80px' }}>
-                    <div style={{
-                        fontSize: '14px',
-                        fontWeight: '700',
-                        letterSpacing: '4px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginBottom: '30px',
-                        textTransform: 'uppercase'
-                    }}>
-                        Mission Planning Dashboard
-                    </div>
+            <div style={wrapStyle}>
 
-                    <h1 style={{
-                        fontSize: '96px',
-                        fontWeight: '800',
-                        lineHeight: '0.9',
-                        marginBottom: '40px',
-                        letterSpacing: '-4px',
-                        background: 'linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.5) 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                    }}>
-                        When Should<br />We Act?
-                    </h1>
-
-                    <p style={{
-                        fontSize: '20px',
-                        fontWeight: '300',
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        letterSpacing: '0.5px',
-                        maxWidth: '700px',
-                        lineHeight: '1.6'
-                    }}>
-                        Comprehensive 72-hour and 7-day forecast analysis for {location.displayName}. The readiness score combines space weather (Kp index), cloud coverage, and ISS pass elevation to determine optimal observation windows.
-                    </p>
-                </div>
-
+                {/* ── Location bar ────────────────────────────────────────── */}
                 <div style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '16px',
-                    padding: '40px',
-                    marginBottom: '60px',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '40px'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    border: `1px solid ${T.border}`,
+                    borderTop: 'none',
+                    background: T.bgPanel,
+                    marginBottom: '14px',
+                    flexWrap: 'wrap',
                 }}>
-                    <div>
-                        <div style={{
-                            fontSize: '48px',
-                            fontWeight: '800',
-                            color: '#00ff88',
-                            marginBottom: '12px'
-                        }}>80-100</div>
-                        <div style={{
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#ffffff',
-                            marginBottom: '8px'
-                        }}>GREEN - GO</div>
-                        <div style={{
-                            fontSize: '12px',
-                            color: 'rgba(255, 255, 255, 0.5)',
-                            lineHeight: '1.6'
-                        }}>
-                            Excellent conditions. Low Kp (&lt;4), clear skies (&lt;30% clouds), high elevation pass (&gt;50°)
-                        </div>
-                    </div>
-
-                    <div>
-                        <div style={{
-                            fontSize: '48px',
-                            fontWeight: '800',
-                            color: '#ffaa00',
-                            marginBottom: '12px'
-                        }}>60-79</div>
-                        <div style={{
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#ffffff',
-                            marginBottom: '8px'
-                        }}>YELLOW - CONDITIONAL</div>
-                        <div style={{
-                            fontSize: '12px',
-                            color: 'rgba(255, 255, 255, 0.5)',
-                            lineHeight: '1.6'
-                        }}>
-                            Marginal conditions. Moderate Kp (4-6), partial clouds (30-70%), medium elevation (30-50°)
-                        </div>
-                    </div>
-
-                    <div>
-                        <div style={{
-                            fontSize: '48px',
-                            fontWeight: '800',
-                            color: '#ff3366',
-                            marginBottom: '12px'
-                        }}>0-59</div>
-                        <div style={{
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#ffffff',
-                            marginBottom: '8px'
-                        }}>RED - NO-GO</div>
-                        <div style={{
-                            fontSize: '12px',
-                            color: 'rgba(255, 255, 255, 0.5)',
-                            lineHeight: '1.6'
-                        }}>
-                            Poor conditions. High Kp (&gt;6), heavy clouds (&gt;70%), low elevation (&lt;30°)
-                        </div>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.green, flexShrink: 0 }} />
+                    <span style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textPrimary, flex: 1 }}>
+                        {location.displayName}
+                    </span>
+                    <span style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted }}>
+                        {location.lat.toFixed(4)}° N · {Math.abs(location.lon).toFixed(4)}° W
+                    </span>
+                    {/* Inline search */}
+                    <div style={{ position: 'relative' }}>
+                        <input
+                            type="text"
+                            placeholder="Change location..."
+                            value={searchQuery}
+                            onChange={e => handleSearch(e.target.value)}
+                            style={{
+                                background: T.bg,
+                                border: `1px solid ${T.borderMed}`,
+                                color: T.textPrimary,
+                                fontFamily: T.fontBody,
+                                fontSize: '11px',
+                                padding: '6px 10px',
+                                width: '180px',
+                                outline: 'none',
+                            }}
+                        />
+                        {showResults && searchResults.length > 0 && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '100%',
+                                right: 0,
+                                background: '#0e1419',
+                                border: `1px solid ${T.borderMed}`,
+                                zIndex: 100,
+                                minWidth: '260px',
+                            }}>
+                                {searchResults.map((r, i) => (
+                                    <div
+                                        key={i}
+                                        onClick={() => handleLocationSelect(r)}
+                                        style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: `1px solid ${T.border}` }}
+                                        onMouseEnter={e => (e.currentTarget.style.background = T.bgHover)}
+                                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                                    >
+                                        <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textPrimary }}>{r.display_name}</div>
+                                        <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>
+                                            {r.latitude.toFixed(4)}°, {r.longitude.toFixed(4)}°
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {forecast.next_optimal_window && (
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0.02) 100%)',
-                        border: '2px solid #00ff88',
-                        borderRadius: '24px',
-                        padding: '60px',
-                        marginBottom: '80px',
-                        position: 'relative',
-                        overflow: 'hidden'
-                    }}>
-                        <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: '6px',
-                            background: 'linear-gradient(90deg, #00ff88, #00cc66)',
-                            boxShadow: '0 0 40px #00ff88'
-                        }}></div>
-
-                        <div style={{
-                            fontSize: '12px',
-                            fontWeight: '700',
-                            letterSpacing: '3px',
-                            color: '#00ff88',
-                            marginBottom: '20px',
-                            textTransform: 'uppercase'
-                        }}>
-                            🎯 Next Optimal Window
-                        </div>
-
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto',
-                            gap: '60px',
-                            alignItems: 'center'
-                        }}>
-                            <div>
-                                <div style={{
-                                    fontSize: '72px',
-                                    fontWeight: '800',
-                                    lineHeight: '1',
-                                    marginBottom: '20px',
-                                    letterSpacing: '-3px'
-                                }}>
-                                    {forecast.next_optimal_window.hour || forecast.next_optimal_window.day_name}
+                {/* ── Mission Readiness ────────────────────────────────────── */}
+                <Panel style={{ marginBottom: '14px' }}>
+                    <PanelHeader title="Mission Readiness" right={`${location.name}`} />
+                    <div style={{ padding: '14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                            <div style={{ fontFamily: T.fontSerif, fontSize: '56px', color: scoreColor(forecast.next_optimal_window?.score ?? 80), lineHeight: 1, flexShrink: 0 }}>
+                                {forecast.next_optimal_window?.score ?? '—'}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ height: '7px', background: 'rgba(255,255,255,0.06)', border: `1px solid ${T.border}`, marginBottom: '7px' }}>
+                                    <div style={{ height: '100%', width: `${forecast.next_optimal_window?.score ?? 0}%`, background: scoreColor(forecast.next_optimal_window?.score ?? 0) }} />
                                 </div>
-                                <div style={{
-                                    fontSize: '18px',
-                                    color: 'rgba(255, 255, 255, 0.7)',
-                                    lineHeight: '1.6'
-                                }}>
-                                    {forecast.next_optimal_window.pass_time && (
-                                        <div>ISS Pass: {forecast.next_optimal_window.pass_time}</div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    {forecast.next_optimal_window && (
+                                        <span style={{
+                                            fontFamily: T.fontHead,
+                                            fontSize: '9px',
+                                            color: scoreColor(forecast.next_optimal_window.score),
+                                            border: `1px solid ${tierBorder(forecast.next_optimal_window.tier)}`,
+                                            background: tierBg(forecast.next_optimal_window.tier),
+                                            padding: '3px 10px',
+                                            letterSpacing: '2px',
+                                        }}>
+                                            {forecast.next_optimal_window.tier === 'GREEN' ? '▶ GO FOR OPERATIONS' :
+                                                forecast.next_optimal_window.tier === 'YELLOW' ? '◐ CONDITIONAL GO' : '✕ NO-GO'}
+                                        </span>
                                     )}
-                                    <div>Elevation: {forecast.next_optimal_window.elevation.toFixed(1)}°</div>
-                                    <div>Cloud Cover: {forecast.next_optimal_window.clouds}%</div>
-                                    <div>Kp Index: {forecast.next_optimal_window.kp}</div>
-                                </div>
-                            </div>
-
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{
-                                    fontSize: '120px',
-                                    fontWeight: '900',
-                                    lineHeight: '1',
-                                    color: '#00ff88',
-                                    letterSpacing: '-6px'
-                                }}>
-                                    {forecast.next_optimal_window.score}
-                                </div>
-                                <div style={{
-                                    fontSize: '14px',
-                                    color: 'rgba(255, 255, 255, 0.5)',
-                                    marginTop: '10px',
-                                    letterSpacing: '2px',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    Readiness
+                                    <span style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted }}>/ 100</span>
                                 </div>
                             </div>
                         </div>
+                        <div style={{ display: 'flex', gap: '28px', paddingTop: '12px', borderTop: `1px solid ${T.border}`, flexWrap: 'wrap' }}>
+                            {[
+                                { label: 'Kp Index', value: String(forecast.metadata.current_kp), color: forecast.metadata.current_kp <= 4 ? T.green : T.yellow },
+                                { label: 'Cloud Cover', value: `${forecast.metadata.current_clouds}%`, color: forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red },
+                                ...(forecast.next_optimal_window ? [
+                                    { label: 'Elevation', value: `${forecast.next_optimal_window.elevation.toFixed(1)}°`, color: T.textPrimary },
+                                    { label: 'Pass Time', value: forecast.next_optimal_window.pass_time || forecast.next_optimal_window.hour || '—', color: T.blue },
+                                    { label: 'Next Window', value: forecast.next_optimal_window.hour || forecast.next_optimal_window.day_name || '—', color: T.textPrimary },
+                                ] : []),
+                            ].map(({ label, value, color }) => (
+                                <div key={label}>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '3px' }}>{label}</div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '14px', fontWeight: 700, color }}>{value}</div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                )}
+                </Panel>
 
-                <div style={{ marginBottom: '80px' }}>
-                    <div style={{
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        letterSpacing: '3px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginBottom: '30px',
-                        textTransform: 'uppercase'
-                    }}>
-                        72-Hour Detailed Forecast
+                {/* ── Forecast + Brief ─────────────────────────────────────── */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px,280px) 1fr', gap: '14px', marginBottom: '14px' }}>
+
+                    {/* 7-day forecast */}
+                    <Panel>
+                        <PanelHeader title="Readiness Forecast" right="7-day" />
+                        <div style={{ padding: '10px 14px' }}>
+                            {forecast.weekly_7d.map((day, i) => (
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '6px 0',
+                                    borderBottom: i < forecast.weekly_7d.length - 1 ? `1px solid ${T.border}` : 'none',
+                                }}>
+                                    <span style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textSec, width: '88px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                        {i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `Day +${i}`}
+                                    </span>
+                                    <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '9px', color: T.border, overflow: 'hidden', whiteSpace: 'nowrap', letterSpacing: '3px' }}>
+                                        ......................
+                                    </span>
+                                    <span style={{ fontFamily: T.fontSerif, fontSize: '22px', color: tierColor(day.tier), width: '36px', textAlign: 'right', lineHeight: 1 }}>
+                                        {day.score}
+                                    </span>
+                                    <span style={{ fontFamily: T.fontHead, fontSize: '8px', color: tierColor(day.tier), width: '76px', textAlign: 'right', letterSpacing: '1px' }}>
+                                        {tierLabel(day.tier)}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </Panel>
+
+                    {/* Mission brief */}
+                    <Panel>
+                        <PanelHeader title="Mission Brief" right="Live conditions" />
+                        <div style={{ padding: '12px 14px' }}>
+                            {[
+                                `Geomagnetic conditions ${forecast.metadata.current_kp <= 3 ? 'stable' : 'elevated'} — Kp ${forecast.metadata.current_kp}, ${forecast.metadata.current_kp <= 4 ? 'below' : 'above'} alert threshold`,
+                                `Cloud cover currently ${forecast.metadata.current_clouds}% — ${forecast.metadata.current_clouds < 30 ? 'clear skies, optimal for observation' : forecast.metadata.current_clouds < 60 ? 'partial cloud cover, conditions marginal' : 'heavy cloud cover, observation not recommended'}`,
+                                forecast.next_optimal_window
+                                    ? `Next optimal window: score ${forecast.next_optimal_window.score}/100 — elevation ${forecast.next_optimal_window.elevation.toFixed(1)}°, clouds ${forecast.next_optimal_window.clouds}%`
+                                    : 'No high-scoring window detected in the next 72 hours',
+                                clearestDay ? `Clearest upcoming day: ${clearestDay.day_name} (${clearestDay.clouds}% cloud cover, score ${clearestDay.score})` : '',
+                                highestKpDay ? `Peak geomagnetic activity forecast: Kp ${highestKpDay.kp} on ${highestKpDay.day_name} — plan around this window` : '',
+                                `7-day GO windows: ${forecast.weekly_7d.filter(d => d.tier === 'GREEN').length} of 7 days suitable for operations`,
+                            ].filter(Boolean).map((line, i) => (
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    gap: '8px',
+                                    padding: '5px 0',
+                                    borderBottom: `1px solid ${T.border}`,
+                                    fontFamily: T.fontBody,
+                                    fontSize: '12px',
+                                    color: T.textSec,
+                                    lineHeight: '1.5',
+                                }}>
+                                    <span style={{ color: T.greenDim, flexShrink: 0 }}>▸</span>
+                                    {line}
+                                </div>
+                            ))}
+
+                            {forecast.next_optimal_window && (
+                                <div style={{
+                                    marginTop: '12px',
+                                    border: `1px solid ${T.greenBorder}`,
+                                    background: T.greenBg,
+                                    padding: '10px 12px',
+                                }}>
+                                    <div style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.greenDim, letterSpacing: '2px', marginBottom: '5px' }}>
+                                        RECOMMENDATION
+                                    </div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '12px', color: T.textPrimary }}>
+                                        Primary window: {forecast.next_optimal_window.hour || forecast.next_optimal_window.day_name}
+                                        {forecast.next_optimal_window.pass_time ? ` · ISS pass ${forecast.next_optimal_window.pass_time}` : ''}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, marginTop: '10px', paddingTop: '8px', borderTop: `1px solid ${T.border}`, letterSpacing: '0.5px' }}>
+                                Sources: <span style={{ color: T.textSec }}>NOAA SWPC</span> · <span style={{ color: T.textSec }}>Open-Meteo</span> · <span style={{ color: T.textSec }}>N2YO</span>
+                            </div>
+                        </div>
+                    </Panel>
+                </div>
+
+                {/* ── Earth + Space conditions ─────────────────────────────── */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                    <Panel>
+                        <PanelHeader title="Earth Conditions" />
+                        <div style={{ padding: '10px 14px' }}>
+                            <CondRow label="Cloud Cover" value={`${forecast.metadata.current_clouds}%`} valueColor={forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red} />
+                            <CondRow label="Visibility" value={forecast.metadata.current_clouds < 30 ? 'Excellent' : forecast.metadata.current_clouds < 60 ? 'Good' : 'Poor'} />
+                            <CondRow label="Sky Quality" value={forecast.metadata.current_clouds < 30 ? 'Clear' : forecast.metadata.current_clouds < 60 ? 'Partly cloudy' : 'Overcast'} />
+                        </div>
+                    </Panel>
+                    <Panel>
+                        <PanelHeader title="Space Conditions" />
+                        <div style={{ padding: '10px 14px' }}>
+                            <CondRow label="Kp Index" value={`${forecast.metadata.current_kp} — ${forecast.metadata.current_kp <= 3 ? 'Low' : forecast.metadata.current_kp <= 5 ? 'Moderate' : 'High'}`} valueColor={forecast.metadata.current_kp <= 3 ? T.green : forecast.metadata.current_kp <= 5 ? T.yellow : T.red} />
+                            <CondRow label="Geomagnetic" value={forecast.metadata.current_kp <= 3 ? 'Stable' : 'Active'} valueColor={forecast.metadata.current_kp <= 3 ? T.green : T.yellow} />
+                            <CondRow label="Auroral Activity" value={forecast.metadata.current_kp <= 3 ? 'Low' : forecast.metadata.current_kp <= 5 ? 'Moderate' : 'High'} />
+                        </div>
+                    </Panel>
+                </div>
+
+                {/* ── Readiness scale ──────────────────────────────────────── */}
+                <Panel style={{ marginBottom: '14px' }}>
+                    <PanelHeader title="Readiness Scale" />
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderTop: `1px solid ${T.border}` }}>
+                        {[
+                            { range: '80 – 100', tier: 'GREEN' as const, label: '■ GO', desc: 'Kp <4 · Clouds <30% · Elevation >50°' },
+                            { range: '60 – 79', tier: 'YELLOW' as const, label: '◐ CAUTION', desc: 'Kp 4–6 · Clouds 30–70% · Elevation 30–50°' },
+                            { range: '0 – 59', tier: 'RED' as const, label: '✕ NO-GO', desc: 'Kp >6 · Clouds >70% · Elevation <30°' },
+                        ].map(({ range, tier, label, desc }, i) => (
+                            <div key={tier} style={{
+                                padding: '14px',
+                                borderRight: i < 2 ? `1px solid ${T.border}` : 'none',
+                                background: tierBg(tier),
+                            }}>
+                                <div style={{ fontFamily: T.fontSerif, fontSize: '28px', color: tierColor(tier), marginBottom: '4px' }}>{range}</div>
+                                <div style={{ fontFamily: T.fontHead, fontSize: '9px', color: tierColor(tier), letterSpacing: '1.5px', marginBottom: '6px' }}>{label}</div>
+                                <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted }}>{desc}</div>
+                            </div>
+                        ))}
                     </div>
+                </Panel>
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-                        gap: '12px'
-                    }}>
-                        {forecast.hourly_72h.map((window, i) => (
-                            <div
-                                key={i}
-                                style={{
-                                    background: window.score >= 80 ? 'rgba(0, 255, 136, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-                                    border: `1px solid ${window.score >= 80 ? 'rgba(0, 255, 136, 0.3)' : 'rgba(255, 255, 255, 0.05)'}`,
-                                    borderRadius: '12px',
-                                    padding: '20px 12px',
-                                    textAlign: 'center',
-                                    transition: 'all 0.3s',
-                                    cursor: 'pointer'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = window.score >= 80 ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 255, 255, 0.05)';
-                                    e.currentTarget.style.transform = 'translateY(-4px)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = window.score >= 80 ? 'rgba(0, 255, 136, 0.05)' : 'rgba(255, 255, 255, 0.02)';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                }}
-                            >
-                                <div style={{
-                                    fontSize: '10px',
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    marginBottom: '8px',
-                                    fontWeight: '600'
-                                }}>
-                                    {window.day}
+                {/* ── 72-hour hourly grid ──────────────────────────────────── */}
+                <Panel style={{ marginBottom: '14px' }}>
+                    <PanelHeader title="72-Hour Hourly Forecast" right="🛰 = ISS pass window" />
+                    <div style={{ padding: '12px 14px' }}>
+                        {/* Group by day */}
+                        {(() => {
+                            const byDay: Record<string, ForecastWindow[]> = {};
+                            forecast.hourly_72h.forEach(w => {
+                                const key = w.day || 'Unknown';
+                                if (!byDay[key]) byDay[key] = [];
+                                byDay[key].push(w);
+                            });
+                            return Object.entries(byDay).map(([day, windows]) => (
+                                <div key={day} style={{ marginBottom: '12px' }}>
+                                    <div style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.textMuted, letterSpacing: '2px', marginBottom: '6px', textTransform: 'uppercase' }}>
+                                        {day}
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: '4px' }}>
+                                        {windows.map((w, i) => (
+                                            <div key={i} style={{
+                                                border: `1px solid ${w.has_pass ? tierBorder(w.tier) : T.border}`,
+                                                background: w.has_pass ? tierBg(w.tier) : T.bg,
+                                                padding: '7px 4px',
+                                                textAlign: 'center',
+                                                cursor: 'pointer',
+                                                transition: 'background 0.15s',
+                                            }}
+                                                onMouseEnter={e => (e.currentTarget.style.background = w.has_pass ? tierBg(w.tier) : T.bgHover)}
+                                                onMouseLeave={e => (e.currentTarget.style.background = w.has_pass ? tierBg(w.tier) : T.bg)}
+                                            >
+                                                <div style={{ fontFamily: T.fontBody, fontSize: '9px', color: T.textMuted, marginBottom: '2px' }}>{w.hour}</div>
+                                                <div style={{ fontFamily: T.fontSerif, fontSize: '20px', color: tierColor(w.tier), lineHeight: 1, marginBottom: '2px' }}>{w.score}</div>
+                                                {w.has_pass && <div style={{ fontSize: '10px', opacity: 0.7 }}>🛰</div>}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div style={{
-                                    fontSize: '11px',
-                                    color: 'rgba(255, 255, 255, 0.6)',
-                                    marginBottom: '12px'
-                                }}>
-                                    {window.hour}
+                            ));
+                        })()}
+                    </div>
+                </Panel>
+
+                {/* ── Trend charts ─────────────────────────────────────────── */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                    <Panel>
+                        <PanelHeader title="Kp Index Trend" right="7-day forecast" />
+                        <div style={{ padding: '12px 14px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                                <div>
+                                    <div style={{ fontFamily: T.fontSerif, fontSize: '36px', color: forecast.metadata.current_kp <= 4 ? T.green : T.yellow, lineHeight: 1 }}>
+                                        {forecast.metadata.current_kp}
+                                    </div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>Current Kp index</div>
                                 </div>
-                                <div style={{
-                                    fontSize: '32px',
-                                    fontWeight: '800',
-                                    color: getTierColor(window.tier),
-                                    marginBottom: '8px',
-                                    letterSpacing: '-2px'
-                                }}>
-                                    {window.score}
-                                </div>
-                                {window.has_pass && (
-                                    <div style={{
-                                        fontSize: '16px',
-                                        marginTop: '6px'
-                                    }}>🛰️</div>
+                                {highestKpDay && (
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.yellow, background: T.yellowBg, border: `1px solid ${T.yellowBorder}`, padding: '5px 8px', textAlign: 'right' }}>
+                                        ⚠ Peak Kp {highestKpDay.kp}<br />
+                                        <span style={{ color: T.textMuted }}>{highestKpDay.day_name}</span>
+                                    </div>
                                 )}
                             </div>
-                        ))}
-                    </div>
+                            <MiniAreaChart data={kpSeries} color={T.green} />
+                        </div>
+                    </Panel>
+                    <Panel>
+                        <PanelHeader title="Cloud Cover Trend" right="7-day forecast" />
+                        <div style={{ padding: '12px 14px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                                <div>
+                                    <div style={{ fontFamily: T.fontSerif, fontSize: '36px', color: forecast.metadata.current_clouds < 30 ? T.green : forecast.metadata.current_clouds < 60 ? T.yellow : T.red, lineHeight: 1 }}>
+                                        {forecast.metadata.current_clouds}%
+                                    </div>
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted, marginTop: '2px' }}>Current cloud cover</div>
+                                </div>
+                                {clearestDay && (
+                                    <div style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.green, background: T.greenBg, border: `1px solid ${T.greenBorder}`, padding: '5px 8px', textAlign: 'right' }}>
+                                        ✓ Clearest: {clearestDay.day_name}<br />
+                                        <span style={{ color: T.textMuted }}>{clearestDay.clouds}% clouds</span>
+                                    </div>
+                                )}
+                            </div>
+                            <MiniAreaChart data={cloudSeries} color={T.blue} />
+                        </div>
+                    </Panel>
                 </div>
 
-                <div style={{ marginBottom: '80px' }}>
-                    <div style={{
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        letterSpacing: '3px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginBottom: '30px',
-                        textTransform: 'uppercase'
-                    }}>
-                        7-Day Overview
-                    </div>
-
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(7, 1fr)',
-                        gap: '16px'
-                    }}>
-                        {forecast.weekly_7d.map((day, i) => (
-                            <div
-                                key={i}
-                                style={{
-                                    background: day.score >= 80 ? 'rgba(0, 255, 136, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-                                    border: `1px solid ${day.score >= 80 ? 'rgba(0, 255, 136, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
-                                    borderRadius: '16px',
-                                    padding: '30px 20px',
-                                    textAlign: 'center',
-                                    transition: 'all 0.3s',
-                                    cursor: 'pointer'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-8px)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                }}
-                            >
-                                <div style={{
-                                    fontSize: '11px',
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    marginBottom: '8px',
-                                    fontWeight: '600',
-                                    letterSpacing: '1px'
-                                }}>
-                                    {i === 0 ? 'TODAY' : (day.day_name || '').slice(0, 3).toUpperCase()}
+                {/* ── Alert thresholds ─────────────────────────────────────── */}
+                <Panel style={{ marginBottom: '14px' }}>
+                    <PanelHeader title="Alert Thresholds" right="Saved locally" />
+                    <div style={{ padding: '14px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '14px' }}>
+                            {[
+                                { label: 'Min Score', key: 'minScore' as const, value: alertThresholds.minScore },
+                                { label: 'Max Kp Index', key: 'maxKp' as const, value: alertThresholds.maxKp },
+                                { label: 'Max Cloud Cover %', key: 'maxClouds' as const, value: alertThresholds.maxClouds },
+                            ].map(({ label, key, value }) => (
+                                <div key={key}>
+                                    <label style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.textMuted, letterSpacing: '2px', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+                                        {label}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={value}
+                                        onChange={e => setAlertThresholds({ ...alertThresholds, [key]: parseInt(e.target.value) })}
+                                        style={{
+                                            width: '100%',
+                                            background: T.bg,
+                                            border: `1px solid ${T.borderMed}`,
+                                            color: T.textPrimary,
+                                            fontFamily: T.fontSerif,
+                                            fontSize: '28px',
+                                            padding: '8px 10px',
+                                            outline: 'none',
+                                        }}
+                                        onFocus={e => (e.currentTarget.style.borderColor = T.greenBorder)}
+                                        onBlur={e => (e.currentTarget.style.borderColor = T.borderMed)}
+                                    />
                                 </div>
-                                <div style={{
-                                    fontSize: '64px',
-                                    fontWeight: '900',
-                                    color: getTierColor(day.tier),
-                                    marginBottom: '12px',
-                                    letterSpacing: '-3px'
-                                }}>
-                                    {day.score}
-                                </div>
-                                <div style={{
-                                    fontSize: '10px',
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    lineHeight: '1.6'
-                                }}>
-                                    <div>{day.elevation > 0 ? `${day.elevation.toFixed(0)}° elev` : 'No pass'}</div>
-                                    <div>{day.clouds}% clouds</div>
-                                    <div>Kp {day.kp}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div style={{ marginBottom: '80px' }}>
-                    <div style={{
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        letterSpacing: '3px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginBottom: '30px',
-                        textTransform: 'uppercase'
-                    }}>
-                        7-Day Trends & Risk Analysis
-                    </div>
-
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: '40px',
-                        marginBottom: '30px'
-                    }}>
-                        <div style={{
-                            background: 'rgba(255, 255, 255, 0.02)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
-                            borderRadius: '16px',
-                            padding: '40px'
-                        }}>
-                            <div style={{
-                                fontSize: '16px',
-                                fontWeight: '600',
-                                marginBottom: '12px'
-                            }}>
-                                Kp Index Forecast
-                            </div>
-                            <div style={{
-                                fontSize: '48px',
-                                fontWeight: '800',
-                                color: forecast.metadata.current_kp <= 4 ? '#00ff88' : forecast.metadata.current_kp <= 6 ? '#ffaa00' : '#ff3366',
-                                marginBottom: '8px'
-                            }}>
-                                {forecast.metadata.current_kp}
-                            </div>
-                            <div style={{
-                                fontSize: '12px',
-                                color: 'rgba(255, 255, 255, 0.5)',
-                                marginBottom: '4px'
-                            }}>
-                                Current space weather index
-                            </div>
-                            {highestKpDay && (
-                                <div style={{
-                                    fontSize: '11px',
-                                    color: '#ffaa00',
-                                    marginTop: '12px',
-                                    padding: '8px 12px',
-                                    background: 'rgba(255, 170, 0, 0.1)',
-                                    borderRadius: '6px'
-                                }}>
-                                    ⚠️ Highest Kp expected: {highestKpDay.kp} on {highestKpDay.day_name}
-                                </div>
-                            )}
-                            <MiniTrendChart data={kpSeries} valueKey="kp" color="rgba(0,255,136,0.9)" />
+                            ))}
                         </div>
-
-                        <div style={{
-                            background: 'rgba(255, 255, 255, 0.02)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
-                            borderRadius: '16px',
-                            padding: '40px'
-                        }}>
-                            <div style={{
-                                fontSize: '16px',
-                                fontWeight: '600',
-                                marginBottom: '12px'
-                            }}>
-                                Cloud Cover Forecast
-                            </div>
-                            <div style={{
-                                fontSize: '48px',
-                                fontWeight: '800',
-                                color: forecast.metadata.current_clouds < 30 ? '#00ff88' : forecast.metadata.current_clouds < 60 ? '#ffaa00' : '#ff3366',
-                                marginBottom: '8px'
-                            }}>
-                                {forecast.metadata.current_clouds}%
-                            </div>
-                            <div style={{
-                                fontSize: '12px',
-                                color: 'rgba(255, 255, 255, 0.5)',
-                                marginBottom: '4px'
-                            }}>
-                                Current cloud coverage
-                            </div>
-                            {clearestDay && (
-                                <div style={{
-                                    fontSize: '11px',
-                                    color: '#00ff88',
-                                    marginTop: '12px',
-                                    padding: '8px 12px',
-                                    background: 'rgba(0, 255, 136, 0.1)',
-                                    borderRadius: '6px'
-                                }}>
-                                    ✨ Clearest day: {clearestDay.day_name} ({clearestDay.clouds}% clouds)
-                                </div>
-                            )}
-                            <MiniTrendChart data={cloudSeries} valueKey="clouds" color="rgba(0,191,255,0.9)" />
-                        </div>
-                    </div>
-                </div>
-
-                <div style={{ marginBottom: '80px' }}>
-                    <div style={{
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        letterSpacing: '3px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginBottom: '30px',
-                        textTransform: 'uppercase'
-                    }}>
-                        Alert Settings
-                    </div>
-
-                    <div style={{
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '16px',
-                        padding: '40px'
-                    }}>
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
-                            gap: '30px',
-                            marginBottom: '30px'
-                        }}>
-                            <div>
-                                <label style={{
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    color: 'rgba(255, 255, 255, 0.6)',
-                                    marginBottom: '12px',
-                                    display: 'block',
-                                    letterSpacing: '1px'
-                                }}>
-                                    MINIMUM SCORE
-                                </label>
-                                <input
-                                    type="number"
-                                    value={alertThresholds.minScore}
-                                    onChange={(e) => setAlertThresholds({ ...alertThresholds, minScore: parseInt(e.target.value) })}
-                                    style={{
-                                        width: '100%',
-                                        background: 'rgba(0, 0, 0, 0.5)',
-                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        color: '#ffffff',
-                                        fontSize: '24px',
-                                        fontWeight: '700'
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    color: 'rgba(255, 255, 255, 0.6)',
-                                    marginBottom: '12px',
-                                    display: 'block',
-                                    letterSpacing: '1px'
-                                }}>
-                                    MAXIMUM Kp
-                                </label>
-                                <input
-                                    type="number"
-                                    value={alertThresholds.maxKp}
-                                    onChange={(e) => setAlertThresholds({ ...alertThresholds, maxKp: parseInt(e.target.value) })}
-                                    style={{
-                                        width: '100%',
-                                        background: 'rgba(0, 0, 0, 0.5)',
-                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        color: '#ffffff',
-                                        fontSize: '24px',
-                                        fontWeight: '700'
-                                    }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    color: 'rgba(255, 255, 255, 0.6)',
-                                    marginBottom: '12px',
-                                    display: 'block',
-                                    letterSpacing: '1px'
-                                }}>
-                                    MAXIMUM CLOUDS (%)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={alertThresholds.maxClouds}
-                                    onChange={(e) => setAlertThresholds({ ...alertThresholds, maxClouds: parseInt(e.target.value) })}
-                                    style={{
-                                        width: '100%',
-                                        background: 'rgba(0, 0, 0, 0.5)',
-                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        color: '#ffffff',
-                                        fontSize: '24px',
-                                        fontWeight: '700'
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        <div style={{
-                            display: 'flex',
-                            gap: '20px',
-                            alignItems: 'center'
-                        }}>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                             <button
                                 onClick={saveAlertSettings}
                                 style={{
-                                    background: 'linear-gradient(135deg, #00ff88, #00cc66)',
+                                    background: saved ? T.green : T.green,
+                                    color: '#000',
                                     border: 'none',
-                                    borderRadius: '8px',
-                                    padding: '16px 40px',
-                                    color: '#000000',
-                                    fontSize: '14px',
-                                    fontWeight: '700',
-                                    letterSpacing: '1px',
-                                    textTransform: 'uppercase',
+                                    fontFamily: T.fontHead,
+                                    fontSize: '9px',
+                                    letterSpacing: '2px',
+                                    padding: '10px 22px',
                                     cursor: 'pointer',
-                                    transition: 'transform 0.2s'
+                                    transition: 'opacity 0.2s',
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                             >
-                                Save Alert Settings
+                                {saved ? 'SAVED ✓' : 'SAVE SETTINGS'}
                             </button>
-
-                            <label style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            }}>
+                            <button
+                                onClick={exportToCalendar}
+                                style={{
+                                    background: 'transparent',
+                                    color: T.textSec,
+                                    border: `1px solid ${T.border}`,
+                                    fontFamily: T.fontBody,
+                                    fontSize: '11px',
+                                    padding: '10px 18px',
+                                    cursor: 'pointer',
+                                    letterSpacing: '0.5px',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.borderColor = T.borderMed)}
+                                onMouseLeave={e => (e.currentTarget.style.borderColor = T.border)}
+                            >
+                                ↓ Export .ICS Calendar
+                            </button>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '7px', fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, cursor: 'pointer' }}>
                                 <input
                                     type="checkbox"
                                     checked={alertsEnabled}
-                                    onChange={(e) => setAlertsEnabled(e.target.checked)}
-                                    style={{ width: '20px', height: '20px' }}
+                                    onChange={e => setAlertsEnabled(e.target.checked)}
+                                    style={{ width: '14px', height: '14px' }}
                                 />
-                                Enable in-app notifications
+                                In-app notifications
                             </label>
                         </div>
                     </div>
-                </div>
+                </Panel>
 
-                <div style={{
-                    display: 'flex',
-                    gap: '20px'
-                }}>
-                    <button
-                        onClick={exportToCalendar}
-                        style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            padding: '16px 40px',
-                            color: '#ffffff',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                        }}
-                    >
-                        📅 Export to Calendar
-                    </button>
-                </div>
             </div>
         </div>
     );
