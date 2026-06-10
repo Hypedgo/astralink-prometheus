@@ -228,6 +228,14 @@ export default function MissionPlanning() {
 
     if (loading || !forecast) return <LoadingScreen />;
 
+    // Compute score and tier from best available data
+    const currentScore = forecast.next_optimal_window?.score ?? Math.round(
+        (forecast.metadata.current_kp <= 3 ? 40 : forecast.metadata.current_kp <= 5 ? 25 : 10) +
+        (forecast.metadata.current_clouds < 30 ? 40 : forecast.metadata.current_clouds < 60 ? 25 : 10) +
+        15
+    );
+    const currentTier: 'GREEN' | 'YELLOW' | 'RED' = currentScore >= 80 ? 'GREEN' : currentScore >= 60 ? 'YELLOW' : 'RED';
+
     return (
         <div style={{ width: '100vw', minHeight: '100vh', background: T.bg, color: T.textPrimary, fontFamily: T.fontBody }}>
             <NavBar />
@@ -268,19 +276,17 @@ export default function MissionPlanning() {
                     <PanelHeader title="Mission Readiness" right={location.name} />
                     <div style={{ padding: '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-                            <div style={{ fontFamily: T.fontSerif, fontSize: '56px', color: scoreColor(forecast.next_optimal_window?.score ?? 80), lineHeight: 1, flexShrink: 0 }}>
-                                {forecast.next_optimal_window?.score ?? '—'}
+                            <div style={{ fontFamily: T.fontSerif, fontSize: '56px', color: scoreColor(currentScore), lineHeight: 1, flexShrink: 0 }}>
+                                {currentScore}
                             </div>
                             <div style={{ flex: 1 }}>
                                 <div style={{ height: '7px', background: 'rgba(255,255,255,0.06)', border: `1px solid ${T.border}`, marginBottom: '7px' }}>
-                                    <div style={{ height: '100%', width: `${forecast.next_optimal_window?.score ?? 0}%`, background: scoreColor(forecast.next_optimal_window?.score ?? 0) }} />
+                                    <div style={{ height: '100%', width: `${currentScore}%`, background: scoreColor(currentScore), transition: 'width 0.5s ease' }} />
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    {forecast.next_optimal_window && (
-                                        <span style={{ fontFamily: T.fontHead, fontSize: '9px', color: scoreColor(forecast.next_optimal_window.score), border: `1px solid ${tierBorder(forecast.next_optimal_window.tier)}`, background: tierBg(forecast.next_optimal_window.tier), padding: '3px 10px', letterSpacing: '2px' }}>
-                                            {forecast.next_optimal_window.tier === 'GREEN' ? '▶ GO FOR OPERATIONS' : forecast.next_optimal_window.tier === 'YELLOW' ? '◐ CONDITIONAL GO' : '✕ NO-GO'}
-                                        </span>
-                                    )}
+                                    <span style={{ fontFamily: T.fontHead, fontSize: '9px', color: scoreColor(currentScore), border: `1px solid ${tierBorder(currentTier)}`, background: tierBg(currentTier), padding: '3px 10px', letterSpacing: '2px' }}>
+                                        {currentTier === 'GREEN' ? '▶ GO FOR OPERATIONS' : currentTier === 'YELLOW' ? '◐ CONDITIONAL GO' : '✕ NO-GO'}
+                                    </span>
                                     <span style={{ fontFamily: T.fontBody, fontSize: '10px', color: T.textMuted }}>/ 100</span>
                                 </div>
                             </div>
@@ -481,12 +487,14 @@ export default function MissionPlanning() {
                             ))}
                         </div>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <button onClick={saveAlertSettings} style={{ background: 'transparent', color: T.green, border: `1px solid ${T.green}`, fontFamily: T.fontHead, fontSize: '9px', letterSpacing: '2px', padding: '10px 22px', cursor: 'pointer', transition: 'all 0.2s' }}
+                            <button onClick={saveAlertSettings}
+                                style={{ background: 'transparent', color: T.green, border: `1px solid ${T.green}`, fontFamily: T.fontHead, fontSize: '9px', letterSpacing: '2px', padding: '10px 22px', cursor: 'pointer', transition: 'all 0.2s' }}
                                 onMouseEnter={e => { e.currentTarget.style.background = T.green; e.currentTarget.style.color = '#000'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.green; }}>
                                 {saved ? 'SAVED ✓' : 'SAVE SETTINGS'}
                             </button>
-                            <button onClick={exportToCalendar} style={{ background: 'transparent', color: T.textSec, border: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '11px', padding: '10px 18px', cursor: 'pointer', letterSpacing: '0.5px' }}
+                            <button onClick={exportToCalendar}
+                                style={{ background: 'transparent', color: T.textSec, border: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '11px', padding: '10px 18px', cursor: 'pointer', letterSpacing: '0.5px' }}
                                 onMouseEnter={e => (e.currentTarget.style.borderColor = T.borderMed)}
                                 onMouseLeave={e => (e.currentTarget.style.borderColor = T.border)}>
                                 ↓ Export .ICS Calendar
