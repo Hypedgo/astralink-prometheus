@@ -36,25 +36,25 @@ interface DetailedForecastData {
 }
 
 const T = {
-    green: '#00d97e',
-    greenDim: 'rgba(0,217,126,0.45)',
-    greenBg: 'rgba(0,217,126,0.05)',
-    greenBorder: 'rgba(0,217,126,0.22)',
-    yellow: '#f5a623',
-    yellowBg: 'rgba(245,166,35,0.08)',
-    yellowBorder: 'rgba(245,166,35,0.25)',
-    red: '#e05c5c',
-    redBg: 'rgba(224,92,92,0.07)',
-    redBorder: 'rgba(224,92,92,0.25)',
-    blue: '#4ab3d4',
-    textPrimary: '#e8e8e8',
-    textSec: 'rgba(232,232,232,0.5)',
-    textMuted: 'rgba(232,232,232,0.25)',
-    border: 'rgba(255,255,255,0.07)',
-    borderMed: 'rgba(255,255,255,0.12)',
-    bg: '#06080a',
-    bgPanel: '#0b0f12',
-    bgHover: 'rgba(255,255,255,0.03)',
+    green: '#00ff88',
+    greenDim: 'rgba(0,255,136,0.45)',
+    greenBg: 'rgba(0,255,136,0.05)',
+    greenBorder: 'rgba(0,255,136,0.22)',
+    yellow: '#facc15',
+    yellowBg: 'rgba(250,204,21,0.08)',
+    yellowBorder: 'rgba(250,204,21,0.25)',
+    red: '#f87171',
+    redBg: 'rgba(248,113,113,0.07)',
+    redBorder: 'rgba(248,113,113,0.25)',
+    blue: '#22d3ee',
+    textPrimary: '#ffffff',
+    textSec: 'rgba(255,255,255,0.6)',
+    textMuted: 'rgba(255,255,255,0.25)',
+    border: 'rgba(34,211,238,0.15)',
+    borderMed: 'rgba(34,211,238,0.3)',
+    bg: '#000000',
+    bgPanel: 'rgba(0,0,0,0.7)',
+    bgHover: 'rgba(34,211,238,0.05)',
     fontHead: "'Audiowide', sans-serif",
     fontBody: "Arial, sans-serif",
     fontSerif: "'DM Serif Display', serif",
@@ -122,7 +122,7 @@ function MiniAreaChart({ data, color }: { data: { x: string; y: number }[]; colo
                     <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
                     <XAxis dataKey="x" tick={{ fill: T.textMuted, fontSize: 9, fontFamily: T.fontBody }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: T.textMuted, fontSize: 9, fontFamily: T.fontBody }} axisLine={false} tickLine={false} width={28} />
-                    <Tooltip contentStyle={{ background: '#0b0f12', border: `1px solid ${T.borderMed}`, borderRadius: 4, color: T.textPrimary, fontSize: 11, fontFamily: T.fontBody }} labelStyle={{ color: T.textMuted }} />
+                    <Tooltip contentStyle={{ background: '#000000', border: `1px solid ${T.borderMed}`, borderRadius: 4, color: T.textPrimary, fontSize: 11, fontFamily: T.fontBody }} labelStyle={{ color: T.textMuted }} />
                     <Area type="monotone" dataKey="y" stroke={color} strokeWidth={1.5} fill={`url(#grad-${color.replace(/[^a-z]/gi, '')})`} />
                 </AreaChart>
             </ResponsiveContainer>
@@ -233,7 +233,7 @@ export default function MissionPlanning() {
             <NavBar />
 
             {/* UTC bar */}
-            <div style={{ borderBottom: `1px solid ${T.greenBorder}`, padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: T.bgPanel, marginTop: '56px' }}>
+            <div style={{ borderBottom: `1px solid ${T.greenBorder}`, padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.8)', marginTop: '56px' }}>
                 <div style={{ fontFamily: T.fontHead, fontSize: '11px', color: T.green, letterSpacing: '2px' }}>◈ MISSION PLANNING</div>
                 <div style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted, letterSpacing: '1px' }}>UTC {utc}</div>
             </div>
@@ -241,15 +241,15 @@ export default function MissionPlanning() {
             <div style={{ padding: '0 20px 60px' }}>
 
                 {/* Location bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', border: `1px solid ${T.border}`, borderTop: 'none', background: T.bgPanel, marginBottom: '14px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', border: `1px solid ${T.border}`, borderTop: 'none', background: 'rgba(0,0,0,0.5)', marginBottom: '14px', flexWrap: 'wrap' }}>
                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.green, flexShrink: 0 }} />
                     <span style={{ fontFamily: T.fontBody, fontSize: '13px', color: T.textPrimary, flex: 1 }}>{location.displayName}</span>
                     <span style={{ fontFamily: T.fontBody, fontSize: '11px', color: T.textMuted }}>{location.lat.toFixed(4)}° N · {Math.abs(location.lon).toFixed(4)}° W</span>
                     <div style={{ position: 'relative' }}>
                         <input type="text" placeholder="Change location..." value={searchQuery} onChange={e => handleSearch(e.target.value)}
-                            style={{ background: T.bg, border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontBody, fontSize: '11px', padding: '6px 10px', width: '180px', outline: 'none' }} />
+                            style={{ background: '#000000', border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontBody, fontSize: '11px', padding: '6px 10px', width: '180px', outline: 'none' }} />
                         {showResults && searchResults.length > 0 && (
-                            <div style={{ position: 'absolute', top: '100%', right: 0, background: '#0e1419', border: `1px solid ${T.borderMed}`, zIndex: 100, minWidth: '260px' }}>
+                            <div style={{ position: 'absolute', top: '100%', right: 0, background: '#000000', border: `1px solid ${T.borderMed}`, zIndex: 100, minWidth: '260px' }}>
                                 {searchResults.map((r, i) => (
                                     <div key={i} onClick={() => handleLocationSelect(r)} style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: `1px solid ${T.border}` }}
                                         onMouseEnter={e => (e.currentTarget.style.background = T.bgHover)}
@@ -474,14 +474,16 @@ export default function MissionPlanning() {
                                 <div key={key}>
                                     <label style={{ fontFamily: T.fontHead, fontSize: '8px', color: T.textMuted, letterSpacing: '2px', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>{label}</label>
                                     <input type="number" value={value} onChange={e => setAlertThresholds({ ...alertThresholds, [key]: parseInt(e.target.value) })}
-                                        style={{ width: '100%', background: T.bg, border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontSerif, fontSize: '28px', padding: '8px 10px', outline: 'none' }}
+                                        style={{ width: '100%', background: '#000000', border: `1px solid ${T.borderMed}`, color: T.textPrimary, fontFamily: T.fontSerif, fontSize: '28px', padding: '8px 10px', outline: 'none' }}
                                         onFocus={e => (e.currentTarget.style.borderColor = T.greenBorder)}
                                         onBlur={e => (e.currentTarget.style.borderColor = T.borderMed)} />
                                 </div>
                             ))}
                         </div>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <button onClick={saveAlertSettings} style={{ background: T.green, color: '#000', border: 'none', fontFamily: T.fontHead, fontSize: '9px', letterSpacing: '2px', padding: '10px 22px', cursor: 'pointer' }}>
+                            <button onClick={saveAlertSettings} style={{ background: 'transparent', color: T.green, border: `1px solid ${T.green}`, fontFamily: T.fontHead, fontSize: '9px', letterSpacing: '2px', padding: '10px 22px', cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = T.green; e.currentTarget.style.color = '#000'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.green; }}>
                                 {saved ? 'SAVED ✓' : 'SAVE SETTINGS'}
                             </button>
                             <button onClick={exportToCalendar} style={{ background: 'transparent', color: T.textSec, border: `1px solid ${T.border}`, fontFamily: T.fontBody, fontSize: '11px', padding: '10px 18px', cursor: 'pointer', letterSpacing: '0.5px' }}
