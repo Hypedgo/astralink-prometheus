@@ -133,7 +133,7 @@ function MiniAreaChart({ data, color }: { data: { x: string; y: number }[]; colo
 function LoadingScreen() {
     return (
         <div style={{ width: '100vw', height: '100vh', background: '#000000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="/logo.png" alt="AstraLink" style={{ width: '360px', opacity: 0.9, marginBottom: '-50px' }} />
+            <img src="/logo.png" alt="AstraLink" style={{ width: '360px', opacity: 0.9, marginBottom: '-70px' }} />
             <div style={{ width: '360px', height: '3px', background: 'rgba(34,211,238,0.2)', overflow: 'hidden', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: '#22d3ee', animation: 'scan 1.4s ease-in-out infinite' }} />
             </div>
